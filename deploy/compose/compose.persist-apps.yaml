@@ -1,36 +1,65 @@
-# 持久化自定义 app 源码目录
+# 持久化自定义 app 源码 + 共享 Python 虚拟环境
 #
 # 事故记录（2026-10-22）：
-#   为了共享前端构建产物，重建 backend/frontend/websocket 容器，
-#   结果 secondtrade app 整个消失，站点直接 HTTP 500
-#   （ModuleNotFoundError: No module named 'secondtrade'）。
-#   原因：apps/ 目录在容器内属于镜像层，没有挂载出去，
-#         容器一旦重建就回到镜像初始状态（只有 erpnext + frappe）。
+#   为共享前端产物重建容器后，secondtrade app 整个消失，站点 HTTP 500。
+#   修复后又发现第二个问题：scheduler / websocket / frontend 三个容器
+#   都报 ModuleNotFoundError: No module named 'secondtrade'，
+#   因为 pip install 只写进「执行安装的那个容器」的 env/。
+#   scheduler 一旦触发定时任务就整站 500。
 #
-# 修复：把 apps/ 目录做成 bind mount，指向宿主机 /opt/erp/apps。
-#       容器重建时自定义 app 代码不会丢。
+# 两处修复：
+#   1. apps/ bind mount 到 /opt/erp/apps → 代码不随容器重建丢失
+#   2. env/  bind mount 到 /opt/erp/env  → 装一次，四个容器全部生效
 #
-# 首次部署：需要先把 app 源码放到宿主机
+# 前置准备（首次部署时执行）：
+#   mkdir -p /opt/erp/apps /opt/erp/env
 #   docker cp frappe_docker-backend-1:/home/frappe/frappe-bench/apps/secondtrade \
 #           /opt/erp/apps/secondtrade
-#   chown -R 1000:0 /opt/erp/apps
+#   docker cp frappe_docker-backend-1:/home/frappe/frappe-bench/env/. /opt/erp/env/
+#   chown -R 1000:0 /opt/erp/apps /opt/erp/env
 #
-# 注意：bind mount 路径变了以后，editable install 的引用会失效，
-#       需要在容器内重跑一次：./env/bin/pip install -e apps/secondtrade
+# 兼容性：共享 env/ 要求各容器 Python 环境一致。
+#         它们跑同一个镜像 frappe/erpnext:v16.52.0，所以安全。
+#         升级 ERPNext 大版本时需要重新导出 env/。
 
 services:
   backend:
     volumes:
       - /opt/erp/apps:/home/frappe/frappe-bench/apps
+      - /opt/erp/env:/home/frappe/frappe-bench/env
 
   frontend:
     volumes:
       - /opt/erp/apps:/home/frappe/frappe-bench/apps
+      - /opt/erp/env:/home/frappe/frappe-bench/env
 
   websocket:
     volumes:
       - /opt/erp/apps:/home/frappe/frappe-bench/apps
+      - /opt/erp/env:/home/frappe/frappe-bench/env
 
   scheduler:
     volumes:
       - /opt/erp/apps:/home/frappe/frappe-bench/apps
+      - /opt/erp/env:/home/frappe/frappe-bench/env
+
+  configurator:
+    volumes:
+      - /opt/erp/apps:/home/frappe/frappe-bench/apps
+      - /opt/erp/env:/home/frappe/frappe-bench/env
+    command:
+      - |
+        ls -1 apps > sites/apps.txt;
+        bench set-config -g db_host $$DB_HOST;
+        bench set-config -gp db_port $$DB_PORT;
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
+        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        bench set-config -g chromium_path /usr/lib/chromium/chromium-headless-shell;
+        for app in $$(ls -1 apps | grep -v -E '^(frappe|erpnext)$$'); do
+          if [ ! -f "env/lib/python*/site-packages/$$app.pth" ]; then
+            echo ">>> installing $$app";
+            ./env/bin/pip install -e apps/$$app;
+          fi;
+        done;
