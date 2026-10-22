@@ -22,10 +22,13 @@ class LabelPrint(Document):
         self._build_text()
         self._build_qr()
 
+    @frappe.whitelist()
     def refresh(self, arg=None):
         """按钮「生成标签文本」调用
 
-        不保存，纯前端刷新预览。
+        这是 server method（前端 frm.call 会走 HTTP 请求），
+        必须加 @frappe.whitelist() 装饰器，否则报：
+            您无权访问此资源 … 申明前未添加@frappe.whitelist()装饰器
         """
         frappe.clear_messages()
         self.validate()
