@@ -15,6 +15,22 @@ class LabelPrint(Document):
     """
 
     def validate(self):
+        self.refresh()
+
+    def refresh(self):
+        """重新生成标签文本 + 二维码
+
+        由 validate 钩子和前端 form.refresh 事件驱动，不通过 HTTP 调用。
+        保留这个方法是为了兼容浏览器缓存的旧版 JS
+        （旧版曾用 frm.call("refresh")，方法不存在会抛
+        AttributeError: 'LabelPrint' object has no attribute 'refresh'）。
+
+        注意：不要给它加 @frappe.whitelist()。
+        Frappe v16 的 whitelist 在 DocType 方法上有 identity bug——
+        whitelist() 注册的是 validate_argument_types() 包装后的新对象，
+        而 run_doc_method 检查的是 __func__（原始函数），
+        两者不等 → 白名单永远命中不了，必报 PermissionError。
+        """
         if not self.serial_no:
             return
 
@@ -23,20 +39,6 @@ class LabelPrint(Document):
         self._build_qr()
 
     # ---------------- 内部 ----------------
-    #
-    # 注意：这里刻意不提供任何 server method（如「生成标签文本」按钮）。
-    #
-    # 原因：Frappe v16 的 @frappe.whitelist() 在 DocType 方法上有 bug——
-    #   frappe/__init__.py: whitelist() 内部
-    #       fn = validate_argument_types(fn, apply_condition=...)  ← 新对象
-    #       whitelisted.add(fn)                                     ← 注册新对象
-    #   而 frappe/handler.py: run_doc_method 取
-    #       fn = getattr(getattr(doc, method), "__func__", ...)     ← 原始函数
-    #       is_whitelisted(fn)                                      ← 查原始函数
-    #   两者 identity 不一致 → 白名单永远命中不了，必报 PermissionError。
-    #
-    # 前端改用 frm.refresh() / frm.save()（走 doc.run_method 的内部调用路径），
-    # 不经过 whitelist 检查，也就不需要 @frappe.whitelist()。
 
     def _load_item(self):
         """从 Serial No 反查 Item 完整信息"""

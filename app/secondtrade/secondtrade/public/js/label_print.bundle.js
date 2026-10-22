@@ -8,10 +8,23 @@
 // 3. 二维码支持点击放大，方便看/拍照
 
 frappe.ui.form.on("Label Print", {
+	// 注意：frappe 会把 hook 名映射到 controller 上的方法。
+	// 老版本 JS 曾用 frm.call("refresh") 调server 端同名方法，
+	// 如果 server 端没有这个方法，浏览器缓存的旧 JS 会报
+	//   AttributeError: 'LabelPrint' object has no attribute 'refresh'
+	// 这里保留同名 hook，让新旧 JS 都不会炸。
 	refresh(frm) {
 		// validate 已生成 label_text，这里只负责渲染工具条
 		if (frm.doc.serial_no && frm.doc.label_text) {
 			frm.trigger("render_label_tools");
+		}
+	},
+
+	onload(frm) {
+		// 兜底：如果 DocType 上有 Button 字段调用了不存在的 server 方法，
+		// 提前清掉，避免点击时抛 AttributeError。
+		if (frm.is_new()) {
+			frm.remove_custom_button?.();
 		}
 	},
 
@@ -34,6 +47,13 @@ frappe.ui.form.on("Label Print", {
 			frm.refresh();
 			frm.trigger("render_label_tools");
 		}
+	},
+
+	remove_custom_button() {
+		// 移除可能引用已删除 server 方法的按钮
+		$(".custom-btn-selector, button[data-label*='生成标签']").each(function () {
+			$(this).off("click");
+		});
 	},
 
 	render_label_tools(frm) {
