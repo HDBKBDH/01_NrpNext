@@ -5,94 +5,121 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "sec_main",
   "naming_series",
   "declaration_no",
   "declaration_date",
   "declaration_type",
   "company",
   "port",
-  "column_break1",
+  "cb_a",
   "logistics_batch",
-  "declared_value",
-  "item_count",
-  "tax_refund_status",
-  "section_items",
-  "items",
-  "column_break2",
-  "section_evidence",
-  "evidence_files",
   "hk_arrival_date",
   "hk_arrival_doc_no",
+  "sec_amount",
+  "total_declared_jpy",
+  "item_count",
+  "sec_tax",
+  "tax_refund_status",
+  "cb_b",
+  "tax_refund_amount_jpy",
+  "sec_items",
+  "items",
+  "sec_files",
+  "evidence_files",
+  "cb_c",
   "hk_arrival_files",
+  "sec_footer",
+  "evidence_package",
+  "cb_d",
   "remarks",
   "amended_from"
  ],
  "fields": [
+  {
+   "fieldname": "sec_main",
+   "fieldtype": "Section Break",
+   "label": "报关信息"
+  },
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "命名规则",
    "options": "CUSTOMS-",
    "default": "CUSTOMS-",
-   "print_hide": 1,
-   "no_copy": 1
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1
   },
   {
    "fieldname": "declaration_no",
    "fieldtype": "Data",
    "label": "报关单号",
-   "read_only": 1,
-   "allow_on_submit": 1,
-   "no_copy": 1,
-   "set_only_once": 1
+   "description": "物流公司/报关公司提供的正式单号"
   },
   {
    "fieldname": "declaration_date",
    "fieldtype": "Date",
    "label": "报关日期",
-   "reqd": 1,
-   "default": "Today"
+   "reqd": 1
   },
   {
    "fieldname": "declaration_type",
    "fieldtype": "Select",
    "label": "报关类型",
-   "options": "Freight\nPersonalCarry\nSample",
+   "options": "\nFreight\nPersonalCarry\nSample",
+   "default": "Freight",
    "reqd": 1,
-   "default": "Freight"
+   "description": "货运报关 / 个人携带 / 样品报关"
   },
   {
    "fieldname": "company",
    "fieldtype": "Link",
-   "label": "公司",
+   "label": "申报公司",
    "options": "Company",
-   "reqd": 1,
-   "default": "ISOTENKAI"
+   "default": "ISOTENKAI",
+   "reqd": 1
   },
   {
    "fieldname": "port",
    "fieldtype": "Data",
-   "label": "口岸"
+   "label": "出境口岸"
   },
   {
-   "fieldname": "column_break1",
-   "fieldtype": "Column Break",
-   "label": ""
+   "fieldname": "cb_a",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "logistics_batch",
    "fieldtype": "Link",
    "label": "关联物流批次",
-   "options": "Logistics Batch"
+   "options": "Logistics Batch",
+   "description": "可选。若填了，添加商品时会提示该批次可报零件"
   },
   {
-   "fieldname": "declared_value",
+   "fieldname": "hk_arrival_date",
+   "fieldtype": "Date",
+   "label": "香港到岸日期"
+  },
+  {
+   "fieldname": "hk_arrival_doc_no",
+   "fieldtype": "Data",
+   "label": "到岸单号"
+  },
+  {
+   "fieldname": "sec_amount",
+   "fieldtype": "Section Break",
+   "label": "申报金额（日元为准）"
+  },
+  {
+   "fieldname": "total_declared_jpy",
    "fieldtype": "Currency",
-   "label": "申报价值",
-   "options": "CNY",
+   "label": "申报总值（日元）",
+   "currency": "JPY",
    "read_only": 1,
    "no_copy": 1,
-   "in_list_view": 1
+   "bold": 1,
+   "description": "报关申报基准。子表申报单价 × 数量自动汇总"
   },
   {
    "fieldname": "item_count",
@@ -102,57 +129,78 @@
    "no_copy": 1
   },
   {
+   "fieldname": "sec_tax",
+   "fieldtype": "Section Break",
+   "label": "退税证据链"
+  },
+  {
    "fieldname": "tax_refund_status",
    "fieldtype": "Select",
    "label": "退税状态",
-   "options": "Completed\nPendingProof\nUndetermined\nPersonalSeller",
-   "allow_on_submit": 1
+   "options": "\nCompleted\nPendingProof\nUndetermined\nPersonalSellerNoReceipt",
+   "default": "PendingProof",
+   "reqd": 1,
+   "description": "已完成境内退税 / 未退税有领收书（需举证）/ 未退税无领收书（待判定）/ 个人卖家无领收书"
   },
   {
-   "fieldname": "section_items",
+   "fieldname": "cb_b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_refund_amount_jpy",
+   "fieldtype": "Currency",
+   "label": "退税金额（日元）",
+   "currency": "JPY",
+   "description": "海关实际退税额，事后回填"
+  },
+  {
+   "fieldname": "sec_items",
    "fieldtype": "Section Break",
-   "label": "商品明细"
+   "label": "商品明细（整机拆件与散件统一在此）"
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
-   "label": "",
-   "options": "Customs Item",
-   "reqd": 1
+   "label": "报关商品",
+   "options": "Customs Item"
   },
   {
-   "fieldname": "column_break2",
-   "fieldtype": "Column Break",
-   "label": ""
-  },
-  {
-   "fieldname": "section_evidence",
+   "fieldname": "sec_files",
    "fieldtype": "Section Break",
-   "label": "凭证"
+   "label": "单据凭证"
   },
   {
    "fieldname": "evidence_files",
    "fieldtype": "Attach",
    "label": "报关凭证",
-   "allow_on_submit": 1
+   "description": "报关单、申报单等"
   },
   {
-   "fieldname": "hk_arrival_date",
-   "fieldtype": "Date",
-   "label": "香港到岸日期",
-   "allow_on_submit": 1
-  },
-  {
-   "fieldname": "hk_arrival_doc_no",
-   "fieldtype": "Data",
-   "label": "到岸单号",
-   "allow_on_submit": 1
+   "fieldname": "cb_c",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "hk_arrival_files",
    "fieldtype": "Attach",
    "label": "到岸凭证",
-   "allow_on_submit": 1
+   "description": "香港清关单、到岸登记单等"
+  },
+  {
+   "fieldname": "sec_footer",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "evidence_package",
+   "fieldtype": "Link",
+   "label": "退税证据包",
+   "options": "Evidence Package",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "提交后自动生成"
+  },
+  {
+   "fieldname": "cb_d",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "remarks",
@@ -164,9 +212,9 @@
    "fieldtype": "Link",
    "label": "修订自",
    "options": "Customs Declaration",
-   "read_only": 1,
+   "no_copy": 1,
    "print_hide": 1,
-   "no_copy": 1
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -199,5 +247,6 @@
  "track_changes": 1,
  "track_seen": 1,
  "is_submittable": 1,
- "autoname": "naming_series:"
+ "autoname": "naming_series:",
+ "description": "日本出境报关单（整机拆件与散件统一入口）"
 }

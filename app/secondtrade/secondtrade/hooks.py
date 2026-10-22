@@ -23,6 +23,7 @@ required_apps = ["frappe/erpnext"]
 # 注意路径格式：相对 app 包根（secondtrade/），即 "public/js/xxx.js"
 doctype_js = {
     "Label Print": "public/js/label_print.bundle.js",
+    "Customs Declaration": "public/js/customs_declaration.bundle.js",
 }
 doctype_css = {}
 # home_page = "login"

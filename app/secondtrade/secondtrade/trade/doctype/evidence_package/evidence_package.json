@@ -6,7 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
-  "disassembly_note",
+  "customs_declaration",
   "company",
   "column_break1",
   "generated_at",
@@ -29,12 +29,13 @@
    "no_copy": 1
   },
   {
-   "fieldname": "disassembly_note",
+   "fieldname": "customs_declaration",
    "fieldtype": "Link",
-   "label": "来源拆解单",
-   "options": "Disassembly Note",
+   "label": "来源单据",
+   "options": "Customs Declaration",
    "reqd": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "description": "关联的报关单。同一张报关单的配件会打包成一个退税证据包。"
   },
   {
    "fieldname": "company",

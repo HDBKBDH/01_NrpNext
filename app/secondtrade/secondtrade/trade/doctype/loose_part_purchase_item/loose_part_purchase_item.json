@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "istable": 1,
+ "field_order": [
+  "cb1",
+  "serial_number",
+  "item",
+  "component_type",
+  "model_name",
+  "cb2",
+  "quantity",
+  "condition_grade",
+  "defect_note",
+  "cb3",
+  "unit_price_jpy",
+  "amount_jpy",
+  "exchange_rate",
+  "amount_cny",
+  "cb4",
+  "image",
+  "declared_price_jpy",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Data",
+   "label": "序列号",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "提交时自动生成，格式 YYMMDD-NN-{TYPE}-NN"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "型号",
+   "options": "Item",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "label": "类型",
+   "options": "\nCPU\nMEM\nGPU\nMB\nNVME\nPSU\nCHS",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "model_name",
+   "fieldtype": "Data",
+   "label": "型号全称",
+   "read_only": 1,
+   "fetch_from": "item.item_name"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "label": "数量",
+   "default": "1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "condition_grade",
+   "fieldtype": "Select",
+   "label": "成色",
+   "options": "\nExcellent\nGood\nFair\nPoor\nUntested",
+   "default": "Good",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "defect_note",
+   "fieldtype": "Small Text",
+   "label": "瑕疵描述"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unit_price_jpy",
+   "fieldtype": "Currency",
+   "label": "采购单价（日元）",
+   "currency": "JPY",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "报关申报基准，按实际采购日元价"
+  },
+  {
+   "fieldname": "amount_jpy",
+   "fieldtype": "Currency",
+   "label": "金额（日元）",
+   "currency": "JPY",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "汇率",
+   "precision": "0.000000",
+   "read_only": 1,
+   "depends_on": "eval:doc.parent.exchange_rate"
+  },
+  {
+   "fieldname": "amount_cny",
+   "fieldtype": "Currency",
+   "label": "金额（人民币）",
+   "currency": "CNY",
+   "read_only": 1,
+   "description": "辅助参考，按结算汇率换算"
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach",
+   "label": "商品图片",
+   "description": "拆解件会自动带拆解时的照片；直接采购件需手动上传"
+  },
+  {
+   "fieldname": "declared_price_jpy",
+   "fieldtype": "Currency",
+   "label": "申报单价（日元）",
+   "currency": "JPY",
+   "description": "留空则用采购单价；可按报关实际填报价调整"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Loose Part Purchase Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

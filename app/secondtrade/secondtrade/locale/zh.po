@@ -210,3 +210,12 @@ msgstr "已交付"
 
 msgid "Expired"
 msgstr "已过期"
+
+msgid "Loose Part Purchase"
+msgstr "散件采购单"
+
+msgid "Loose Part Purchase Item"
+msgstr "散件采购明细"
+
+msgid "LPP-"
+msgstr "散件采购单号前缀"
