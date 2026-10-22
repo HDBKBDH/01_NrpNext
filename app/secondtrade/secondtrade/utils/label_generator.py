@@ -8,6 +8,9 @@
 且 autoname = "field:serial_no"（name 取 serial_no 字段值）。
 """
 
+import base64
+import io
+
 import frappe
 
 COMPONENT_TYPES = ["CPU", "MEM", "GPU", "MB", "NVME", "PSU", "CHS"]
@@ -25,13 +28,16 @@ def generate_serial_number(dn_name, component_type, seq):
     return f"{dn_name}-{component_type}-{seq:02d}"
 
 
-def generate_text_labels(serial_numbers):
-    """生成文字标签文本（TSV，Tab 分隔）
+def build_label_payload(serial_numbers, remark=None):
+    """生成文字标签的 Tab 分隔文本
 
-    输出格式（可直接导入 Brother P-touch Template）：
-        型号<TAB>序列号
-        Corsair VENGERNCE DDR4-3200 32G(16G*2)<TAB>261003-01-MEM-01
+    返回 TSV，每行一条：
+        型号全称<TAB>SN[<TAB>备注]
+
+    serial_numbers: str 或 list[str]
     """
+    if isinstance(serial_numbers, str):
+        serial_numbers = [serial_numbers]
     if not serial_numbers:
         return ""
 
@@ -42,20 +48,6 @@ def generate_text_labels(serial_numbers):
         fields=["serial_no", "item_code"],
         as_dict=True,
     )
-
-    if not rows:
-        # 退回：Serial No 尚未生成时，从拆解单子表读
-        dn_rows = frappe.get_all(
-            "Disassembly Note Item",
-            filters={"serial_number": ["in", serial_numbers]},
-            fields=["serial_number", "item"],
-            as_dict=True,
-        )
-        rows = [
-            {"serial_no": r["serial_number"], "item_code": r["item"]}
-            for r in dn_rows
-        ]
-
     if not rows:
         return ""
 
@@ -71,26 +63,43 @@ def generate_text_labels(serial_numbers):
 
     sn_to_item = {r["serial_no"]: r["item_code"] for r in rows}
 
-    lines = ["型号\t序列号"]
+    lines = []
     for sn in serial_numbers:
-        item_name = item_map.get(sn_to_item.get(sn, ""), "")
-        lines.append(f"{item_name}\t{sn}")
+        cols = [item_map.get(sn_to_item.get(sn, ""), ""), sn]
+        if remark:
+            cols.append(remark.strip())
+        lines.append("\t".join(cols))
 
     return "\n".join(lines)
 
 
-def generate_qr_image(serial_number):
-    """生成 SN 二维码图片（Data URI）"""
-    import base64
-    import io
+def generate_qr_data_uri(serial_number, box_size=6, border=2):
+    """生成 SN 二维码的 Data URI
 
+    返回 "data:image/png;base64,xxxx"，可直接存进 Attach Image 字段。
+    """
     try:
         import qrcode
     except ImportError:
-        frappe.throw(_("需要安装 qrcode 库：pip install qrcode"))
+        frappe.throw(
+            frappe._(
+                "缺少 qrcode 库。执行：bench --site <site> install-app secondtrade"
+            ),
+            title=frappe._("二维码依赖缺失"),
+        )
 
-    img = qrcode.make(serial_number)
+    qr = qrcode.QRCode(
+        version=None,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=box_size,
+        border=border,
+    )
+    qr.add_data(serial_number)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
     buf = io.BytesIO()
     img.save(buf, format="PNG")
+
     b64 = base64.b64encode(buf.getvalue()).decode()
     return f"data:image/png;base64,{b64}"
