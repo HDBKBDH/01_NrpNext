@@ -1,0 +1,26 @@
+# 共享前端构建产物目录
+#
+# 问题：bench build 在 backend 容器里把产物写到
+#       /home/frappe/frappe-bench/assets/，
+#       但 frontend 容器（Nginx 读文件的地方）有自己独立的一份，
+#       导致 dist/ 产物 404，浏览器一直用缓存的旧 JS，
+#       表现为「改了前端代码但行为没变」。
+#
+# 修复：把该目录做成 named volume，backend / frontend / websocket
+#       三个服务共享同一份，build 完立即可见。
+
+services:
+  backend:
+    volumes:
+      - assets:/home/frappe/frappe-bench/assets
+
+  frontend:
+    volumes:
+      - assets:/home/frappe/frappe-bench/assets
+
+  websocket:
+    volumes:
+      - assets:/home/frappe/frappe-bench/assets
+
+volumes:
+  assets:

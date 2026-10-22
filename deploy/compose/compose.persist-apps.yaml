@@ -1,0 +1,36 @@
+# 持久化自定义 app 源码目录
+#
+# 事故记录（2026-10-22）：
+#   为了共享前端构建产物，重建 backend/frontend/websocket 容器，
+#   结果 secondtrade app 整个消失，站点直接 HTTP 500
+#   （ModuleNotFoundError: No module named 'secondtrade'）。
+#   原因：apps/ 目录在容器内属于镜像层，没有挂载出去，
+#         容器一旦重建就回到镜像初始状态（只有 erpnext + frappe）。
+#
+# 修复：把 apps/ 目录做成 bind mount，指向宿主机 /opt/erp/apps。
+#       容器重建时自定义 app 代码不会丢。
+#
+# 首次部署：需要先把 app 源码放到宿主机
+#   docker cp frappe_docker-backend-1:/home/frappe/frappe-bench/apps/secondtrade \
+#           /opt/erp/apps/secondtrade
+#   chown -R 1000:0 /opt/erp/apps
+#
+# 注意：bind mount 路径变了以后，editable install 的引用会失效，
+#       需要在容器内重跑一次：./env/bin/pip install -e apps/secondtrade
+
+services:
+  backend:
+    volumes:
+      - /opt/erp/apps:/home/frappe/frappe-bench/apps
+
+  frontend:
+    volumes:
+      - /opt/erp/apps:/home/frappe/frappe-bench/apps
+
+  websocket:
+    volumes:
+      - /opt/erp/apps:/home/frappe/frappe-bench/apps
+
+  scheduler:
+    volumes:
+      - /opt/erp/apps:/home/frappe/frappe-bench/apps
