@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="二手贸易">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4a90d9"/>
+      <stop offset="100%" stop-color="#2c5f8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)"/>
+  <!-- 箱体 -->
+  <path d="M14 26 L32 18 L50 26 L50 44 L32 52 L14 44 Z" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round" opacity="0.92"/>
+  <path d="M14 26 L32 34 L50 26" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round" opacity="0.92"/>
+  <path d="M32 34 L32 52" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round" opacity="0.92"/>
+  <!-- 循环箭头（贸易） -->
+  <path d="M20 16 A14 14 0 0 1 44 14" fill="none" stroke="#ffd166" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M44 9 L44 17 L36 17" fill="none" stroke="#ffd166" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

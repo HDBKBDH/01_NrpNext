@@ -141,6 +141,84 @@ def main():
                         f"（应为 '<abbr> - <name>'）"
                     )
 
+    # v16「All Apps」入口检查
+    # 踩过的坑：app 装了、模块也在，但 All Apps 里看不到入口。
+    # 根因：v16 只显示声明了 add_to_apps_screen hook 的 app，
+    # 而且侧栏 rail 靠 Dock（不是 Workspace）。
+    hooks_py = f"{APP}/hooks.py"
+    if os.path.exists(hooks_py):
+        hsrc = open(hooks_py).read()
+        if "add_to_apps_screen" not in hsrc:
+            errors.append(
+                "[AllApps] hooks.py 缺少 add_to_apps_screen hook"
+                " → app 不会出现在 All Apps 页面"
+            )
+        else:
+            print("  ✓ add_to_apps_screen 已声明")
+
+        if "app_logo_url" not in hsrc and "logo" not in hsrc:
+            errors.append("[AllApps] add_to_apps_screen 缺 logo 字段")
+
+        # route 不能是 /app/xxx（desk 旧前缀，会重定向）
+        if '"/app/' in hsrc:
+            errors.append(
+                "[AllApps] route 用了 /app/ 前缀"
+                " → desk 旧前缀会重定向，应该用 /desk/<slug>"
+            )
+
+        # logo 文件必须真实存在
+        import re as _re
+        m = _re.search(r'"logo":\s*"(/assets/[^"]+)"', hsrc)
+        if m:
+            logo_rel = m.group(1).replace("/assets/secondtrade/", "")
+            logo_path = f"{APP}/public/{logo_rel}"
+            if not os.path.exists(logo_path):
+                errors.append(f"[AllApps] logo 文件不存在: {logo_path}")
+
+    # Dock 检查：v16 的侧栏 rail 来自 Dock 文档
+    #
+    # 路径（实测 get_doc_files 确认，frappe/erpnext 都是这个结构）：
+    #   apps/frappe/frappe/dock/frappe/frappe.json
+    #   apps/erpnext/erpnext/dock/erpnext/erpnext.json
+    # → <app>/dock/<app>/<app>.json
+    #
+    # 坑：orphan 清理走 check_if_record_exists(type="app")，
+    # 规则是 <app>/dock/<name>.json，跟 import 规则不一致
+    # （frappe 自己也对不上，靠 standard=1 豁免）。
+    # 所以文件必须放在 import 规则的位置，否则 migrate 不会导入。
+    dock_json = f"{APP}/dock/secondtrade/secondtrade.json"
+    if os.path.exists(dock_json):
+        try:
+            d = json.load(open(dock_json))
+            if d.get("app") != "secondtrade":
+                errors.append(f"[Dock] app 字段错误: {d.get('app')}")
+            if not d.get("name"):
+                # import_file.py:123 无条件读 doc["name"]，缺了直接 KeyError
+                errors.append(
+                    "[Dock] JSON 缺 name 字段"
+                    " → migrate 报 KeyError: 'name'"
+                )
+            if d.get("standard") != 1:
+                errors.append("[Dock] standard 必须为 1（app 层）")
+            if not d.get("user") == "":
+                errors.append("[Dock] user 必须为空串（app 层，不是 site/user 层）")
+            if not d.get("items"):
+                errors.append("[Dock] items 为空 → 侧栏 rail 无内容")
+            for it in d.get("items", []):
+                if it.get("link_type") not in ("Sidebar", "Workspace", "URL"):
+                    errors.append(
+                        f"[Dock] link_type 非法: {it.get('link_type')}"
+                        " （只能 Sidebar / Workspace / URL）"
+                    )
+            print(f"  ✓ Dock 已配置（{len(d.get('items', []))} 项）")
+        except Exception as e:
+            errors.append(f"[Dock] JSON 解析失败: {e}")
+    else:
+        errors.append(
+            f"[Dock] 缺少 {dock_json}"
+            " → 侧栏 rail 无入口（v16 用 Dock 不用 Workspace）"
+        )
+
     # Workspace 检查（v16 有4 个坑，全踩过）
     # 1. content 必须是 json.dumps 的字符串（不是 list，也不是 HTML）
     #    workspace.py:614 要 str/bytes；:106 要 loads 后是 list

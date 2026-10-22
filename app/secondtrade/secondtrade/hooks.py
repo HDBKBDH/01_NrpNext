@@ -32,6 +32,23 @@ doctype_css = {}
 # ---------------- Installed Apps ----------------
 # GitHub template for fields and scripts
 
+# v16 的「All Apps」页面（App 列表）只显示声明了 add_to_apps_screen 的 app。
+# 没有这个 hook，app 装了、模块也在，但 All Apps 里看不到入口。
+# 参考：erpnext/erpnext/hooks.py、frappe/frappe/hooks.py
+add_to_apps_screen = [
+    {
+        "name": app_name,
+        "logo": "/assets/secondtrade/images/secondtrade-logo.svg",
+        "title": app_title,
+        # Workspace「贸易」的路由格式是 /desk/<slug>（frappe/ui/sidebar/sidebar_item.js）
+        # 注意不能写 /app/xxx —— 那是 desk 的旧前缀，会重定向。
+        "route": "/desk/贸易",
+        "setup_wizard_text": "二手贸易管理系统",
+        # 排序：ERPNext 是 1，Framework 是 1000（钉在最后）
+        "sequence_id": 10,
+    }
+]
+
 # --------------- Customizable App Injections ---------------
 # allowed_apps = [ ]
 
