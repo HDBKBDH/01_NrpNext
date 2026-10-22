@@ -1,0 +1,212 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: secondtrade\n"
+"Report-Msgid-Bugs-To: admin@motitoo.com\n"
+"POT-Creation-Date: 2026-10-22 00:00+0800\n"
+"PO-Revision-Date: 2026-10-22 00:00+0800\n"
+"Last-Translator: Ice <admin@motitoo.com>\n"
+"Language-Team: Chinese Simplified\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: secondtrade\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Disassembly Note"
+msgstr "拆解单"
+
+msgid "Disassembly Note Item"
+msgstr "拆解零件明细"
+
+msgid "Logistics Batch"
+msgstr "物流批次"
+
+msgid "Freight Cost"
+msgstr "运费明细"
+
+msgid "Cost Allocation"
+msgstr "成本分摊明细"
+
+msgid "Source Disassembly"
+msgstr "来源拆解单"
+
+msgid "Customs Declaration"
+msgstr "报关单"
+
+msgid "Customs Item"
+msgstr "报关商品明细"
+
+msgid "Item Transit Record"
+msgstr "商品轨迹记录"
+
+msgid "Market Price History"
+msgstr "行情价历史"
+
+msgid "Purpose History"
+msgstr "用途变更历史"
+
+msgid "Evidence Package"
+msgstr "退税证据包"
+
+msgid "Trade Settings"
+msgstr "贸易设置"
+
+msgid "Label Print"
+msgstr "标签打印"
+
+msgid "Normal"
+msgstr "正常出口"
+
+msgid "SelfUse"
+msgstr "自用"
+
+msgid "ForRepair"
+msgstr "待维修"
+
+msgid "PartsOnly"
+msgstr "拆件处理"
+
+msgid "Scrap"
+msgstr "报废/丢弃"
+
+msgid "Excellent"
+msgstr "极佳"
+
+msgid "Good"
+msgstr "良好"
+
+msgid "Fair"
+msgstr "一般"
+
+msgid "Poor"
+msgstr "较差"
+
+msgid "Untested"
+msgstr "未测试"
+
+msgid "Domestic"
+msgstr "日本境内"
+
+msgid "Export"
+msgstr "出境"
+
+msgid "HongKong"
+msgstr "香港中转"
+
+msgid "Mainland"
+msgstr "大陆段"
+
+msgid "InTransit"
+msgstr "在途"
+
+msgid "Delivered"
+msgstr "已送达"
+
+msgid "LocalShipping"
+msgstr "日本境内运输"
+
+msgid "LocalStorage"
+msgstr "日本境内仓储"
+
+msgid "ExportFreight"
+msgstr "出境货运"
+
+msgid "HKTransit"
+msgstr "香港中转费"
+
+msgid "CNTransport"
+msgstr "大陆段运输"
+
+msgid "CustomsDuty"
+msgstr "关税"
+
+msgid "CustomsFee"
+msgstr "报关费"
+
+msgid "Insurance"
+msgstr "保险费"
+
+msgid "LocalDisposal"
+msgstr "境内处置收入"
+
+msgid "Other"
+msgstr "其他"
+
+msgid "Refunded"
+msgstr "已退税"
+
+msgid "NotRefundedWithReceipt"
+msgstr "未退税（有领收书）"
+
+msgid "NotRefundedNoReceipt"
+msgstr "未退税（无领收书）"
+
+msgid "PersonalSellerNoReceipt"
+msgstr "个人卖家（无领收书）"
+
+msgid "Purchase"
+msgstr "采购"
+
+msgid "Sale"
+msgstr "销售"
+
+msgid "Repair"
+msgstr "维修"
+
+msgid "Research"
+msgstr "科研"
+
+msgid "Gift"
+msgstr "赠送"
+
+msgid "Disposal"
+msgstr "处置"
+
+msgid "Warehouse"
+msgstr "仓库"
+
+msgid "InTransit_"
+msgstr "在途"
+
+msgid "GOOFISH"
+msgstr "闲鱼虚拟仓"
+
+msgid "Company"
+msgstr "公司携带"
+
+msgid "Personal"
+msgstr "个人携带"
+
+msgid "Logistics"
+msgstr "物流货运"
+
+msgid "SFInternational"
+msgstr "顺丰国际"
+
+msgid "Air"
+msgstr "空运"
+
+msgid "Sea"
+msgstr "海运"
+
+msgid "Express"
+msgstr "快递"
+
+msgid "Other_"
+msgstr "其他"
+
+msgid "Active"
+msgstr "活跃"
+
+msgid "Inactive"
+msgstr "停用"
+
+msgid "Consumed"
+msgstr "已消耗"
+
+msgid "Delivered_"
+msgstr "已交付"
+
+msgid "Expired"
+msgstr "已过期"

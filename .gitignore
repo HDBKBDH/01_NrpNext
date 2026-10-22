@@ -57,3 +57,12 @@ id_rsa*
 *.orig
 *.tmp
 nohup.out
+
+# macOS 残留文件（会被 tar 带进服务器，污染 esbuild 构建）
+._*
+.DS_Store
+
+# 编译产物（bench build 生成，不入库）
+*.mo
+node_modules/
+sites/assets/
