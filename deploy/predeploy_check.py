@@ -11,6 +11,7 @@
 import ast
 import json
 import os
+import re
 import sys
 
 APP = "secondtrade"
@@ -18,6 +19,7 @@ DT_ROOT = f"{APP}/trade/doctype"
 
 errors = []
 warnings = []
+
 
 
 def check_syntax(path, name):
@@ -119,6 +121,98 @@ def main():
                         f"（应为 ISOTENKAI / CSRH，不是 abbr）"
                     )
 
+    # Link → Warehouse 的默认值格式检查
+    # Frappe 的 Warehouse.name = "<company_abbr> - <warehouse_name>"
+    for d in doctypes:
+        js = f"{DT_ROOT}/{d}/{d}.json"
+        if not os.path.exists(js):
+            continue
+        try:
+            dj = json.load(open(js))
+        except json.JSONDecodeError:
+            continue
+        for f in dj.get("fields", []):
+            if f.get("options") == "Warehouse" and f.get("default"):
+                dv = f["default"]
+                if " - " not in dv:
+                    errors.append(
+                        f"[Link] {d}.{f['fieldname']}: "
+                        f"Warehouse 默认值 {dv!r} 缺少 ' - ' 分隔"
+                        f"（应为 '<abbr> - <name>'）"
+                    )
+
+    # Workspace 检查（v16 有4 个坑，全踩过）
+    # 1. content 必须是 json.dumps 的字符串（不是 list，也不是 HTML）
+    #    workspace.py:614 要 str/bytes；:106 要 loads 后是 list
+    # 2. module 是必填字段
+    # 3. links 子表的 type 只能是 "Link" / "Card Break"，
+    #    目标 DocType 放在 link_to，link_type="DocType"
+    # 4. 文件必须在 <app_path>/**/workspace/**/*.json，
+    #    否则 migrate 的 orphan 清理会把它删掉
+    import glob as _glob
+
+    ws_files = _glob.glob(f"{APP}/**/workspace/**/*.json", recursive=True)
+    if not ws_files:
+        warnings.append(
+            "[Workspace] 没有找到 workspace JSON——"
+            "Desk 里 trade 模块会完全隐形。"
+            "文件必须放在 <app>/**/workspace/**/*.json"
+        )
+    for wf in ws_files:
+        rel = wf[len(APP) + 1:]
+        try:
+            wj = json.load(open(wf))
+        except json.JSONDecodeError as e:
+            errors.append(f"[Workspace] {rel}: JSON 解析失败 {e}")
+            continue
+
+        if not wj.get("module"):
+            errors.append(f"[Workspace] {rel}: 缺少 module（必填）")
+        if not wj.get("name"):
+            errors.append(f"[Workspace] {rel}: 缺少 name")
+
+        # content 必须是 JSON 字符串
+        c = wj.get("content")
+        if c is None:
+            warnings.append(f"[Workspace] {rel}: 没有 content")
+        elif isinstance(c, list):
+            errors.append(
+                f"[Workspace] {rel}: content 不能是 list，"
+                f"必须 json.dumps(blocks) 传字符串"
+            )
+        elif isinstance(c, str):
+            try:
+                blocks = json.loads(c)
+                if not isinstance(blocks, list):
+                    errors.append(
+                        f"[Workspace] {rel}: content 的 JSON 必须是 list"
+                    )
+            except json.JSONDecodeError:
+                errors.append(
+                    f"[Workspace] {rel}: content 不是合法 JSON——"
+                    f"v16 要求 block JSON，不能传 HTML"
+                )
+
+        # links 的 type / link_type 校验
+        for lk in wj.get("links", []):
+            t = lk.get("type")
+            if t not in ("Link", "Card Break", None):
+                errors.append(
+                    f"[Workspace] {rel}: links.type={t!r} 非法，"
+                    f"只能是 'Link' 或 'Card Break'"
+                )
+            if t == "Link":
+                if not lk.get("link_to"):
+                    errors.append(
+                        f"[Workspace] {rel}: "
+                        f"links「{lk.get('label')}」缺 link_to"
+                    )
+                if lk.get("link_type") not in ("DocType", "Page", "Report", None):
+                    errors.append(
+                        f"[Workspace] {rel}: "
+                        f"links「{lk.get('label')}」的 link_type 非法"
+                    )
+
     # patch 检查：用了 frappe. 就必须 import frappe
     patches_dir = f"{APP}/patches"
     if os.path.isdir(patches_dir):
@@ -134,13 +228,31 @@ def main():
                 if "frappe." in psrc and "import frappe" not in psrc:
                     errors.append(f"[patch] {rel}: 用了 frappe. 但缺少 import")
 
-    # utils 检查
+    # utils 检查 + 递归自检
+    # 踩过的坑：patch 时把函数体替换成了对自身的调用 → RecursionError，
+    # 而且只有运行时才暴露，静态语法检查发现不了。
     utils = f"{APP}/utils"
     if os.path.isdir(utils):
         for f in sorted(os.listdir(utils)):
-            if f.endswith(".py"):
-                check_syntax(f"{utils}/{f}", f"utils/{f}")
+            if not f.endswith(".py"):
+                continue
+            fpath = f"{utils}/{f}"
+            rel = f"utils/{f}"
+            if not check_syntax(fpath, rel):
+                continue
 
+    # 同样的检查覆盖 trade/ 下的所有 controller
+    trade_dir = f"{APP}/trade"
+    if os.path.isdir(trade_dir):
+        for root, _dirs, files in os.walk(trade_dir):
+            for fn in files:
+                if not fn.endswith(".py") or fn == "__init__.py":
+                    continue
+                fpath = os.path.join(root, fn)
+                rel = fpath[len(APP) + 1:]
+                if not check_syntax(fpath, rel):
+                    continue
+    
     print("=" * 56)
     if errors:
         print(f"✗ {len(errors)} 个错误：\n")

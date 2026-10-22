@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from secondtrade.utils.label_generator import build_label_payload, generate_qr_data_uri
+from secondtrade.utils.label_generator import generate_qr_png
 
 
 class LabelPrint(Document):
@@ -88,12 +88,48 @@ class LabelPrint(Document):
         self.label_text = "\n".join("\t".join(r) for r in rows)
 
     def _build_qr(self):
-        """生成 SN 二维码（Data URI，直接显示不落文件）"""
+        """生成 SN 二维码并存成真实文件
+
+        踩过的坑：一开始用 Data URI（data:image/png;base64,...）
+        存进 Attach Image 字段，数据库里确实存进去了，
+        但 Frappe 的 Attach Image 组件会去请求 /files/<value>，
+        拿到的是一串 base64 → 404 → 前端显示不出图。
+
+        正确做法：生成 PNG bytes → 建 File 记录 → 存 file_url。
+        """
+        if not self.serial_no:
+            return
+
         try:
-            self.qr_image = generate_qr_data_uri(self.serial_no)
+            payload = generate_qr_png(self.serial_no)
         except Exception as e:
             # 二维码失败不阻塞文字标签
             frappe.msgprint(
                 _("二维码生成失败：{0}（文字标签仍可正常使用）").format(e),
                 indicator="orange",
             )
+            return
+
+        fname = f"qr_{self.serial_no}.png"
+
+        # 已有同名文件就复用，避免重复上传
+        existing = frappe.db.exists("File", {"file_name": fname})
+        if existing:
+            self.qr_image = frappe.db.get_value("File", existing, "file_url")
+            return
+
+        f = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": fname,
+                "content": payload,
+                "attached_to_doctype": "Label Print",
+                "attached_to_name": self.name or "new-label-print",
+                "attached_to_field": "qr_image",
+                "is_private": 0,
+            }
+        )
+        f.flags.ignore_permissions = True
+        f.insert(ignore_permissions=True)
+
+        self.qr_image = f.file_url

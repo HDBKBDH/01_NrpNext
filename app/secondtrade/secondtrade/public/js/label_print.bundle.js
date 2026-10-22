@@ -49,6 +49,42 @@ frappe.ui.form.on("Label Print", {
 		}
 	},
 
+	render_qr_tool(frm) {
+		// 二维码字段现在是 Attach（存真实文件 URL），
+		// Frappe 会自动渲染成<img>。这里加一个「新窗口打开」便于打印。
+		const field = frm.get_field("qr_image");
+		if (!field || !frm.doc.qr_image) {
+			return;
+		}
+
+		const $img = $(field.wrapper).find("img");
+		if (!$img.length) {
+			return;
+		}
+
+		$img.css({
+			cursor: "zoom-in",
+			border: "1px solid var(--border-color)",
+			borderRadius: "4px",
+		});
+
+		if ($img.data("bound")) {
+			return;
+		}
+		$img.data("bound", true);
+
+		$img.on("click", function () {
+			window.open(frm.doc.qr_image, "_blank");
+		});
+
+		const $tip = $(
+			'<div class="qr-hint text-muted" style="font-size:12px;margin-top:4px;">' +
+				"点击二维码可放大，单独打印成二维码标签" +
+				"</div>"
+		);
+		$(field.wrapper).append($tip);
+	},
+
 	remove_custom_button() {
 		// 移除可能引用已删除 server 方法的按钮
 		$(".custom-btn-selector, button[data-label*='生成标签']").each(function () {
@@ -58,6 +94,7 @@ frappe.ui.form.on("Label Print", {
 
 	render_label_tools(frm) {
 		const text = frm.doc.label_text || "";
+		frm.trigger("render_qr_tool");
 
 		if (!text) {
 			return;

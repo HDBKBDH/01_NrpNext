@@ -84,10 +84,10 @@
   },
   {
    "fieldname": "qr_image",
-   "fieldtype": "Attach Image",
+   "fieldtype": "Attach",
    "label": "二维码（单独标签）",
    "read_only": 1,
-   "description": "SN 二维码图片，供 BJ 入库扫码"
+   "description": "SN 二维码 PNG。必须存真实文件 URL——Attach Image 字段不认 Data URI，会导致前端 404"
   },
   {
    "fieldname": "section_break_tpl",

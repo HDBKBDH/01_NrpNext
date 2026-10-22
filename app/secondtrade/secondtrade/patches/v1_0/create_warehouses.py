@@ -5,8 +5,7 @@ v16的 Warehouse.name 由 warehouse_name + company 自动组成（"名称 - 公�
 
 CSRH 公司（大陆）：
     所有仓库 - CSRH
-      ├ 日本-ISTK   日本物流仓（记账在大陆，实际在日本）
-      ├ HK-01/02/03 香港中转仓
+           ├ HK-01/02/03 香港中转仓
       ├ SZ-01       深圳中转仓
       ├ BJ-CSRH     北京销售仓
       ├ BJ-SY       北京公司留用（自用）
@@ -14,8 +13,8 @@ CSRH 公司（大陆）：
 
 ISOTENKAI 公司（日本）：
     所有仓库 - ISTK
-      ├ JP-ISTK         日本物流仓
-      └ JP-ISTK-LOCAL   日本公司留用（自用）
+      ├ JP              日本物流仓
+      └ JP-LOCAL        日本公司留用（自用）
 """
 
 import frappe
@@ -25,7 +24,6 @@ ISO = "ISOTENKAI"
 
 TREE = [
     # (warehouse_name, parent_name, company, type, country, selfuse, virtual, state)
-    ("日本-ISTK", "所有仓库 - CSRH", CSRH, "物流仓", "Japan", 0, 0, "InTransit"),
     ("HK-01", "所有仓库 - CSRH", CSRH, "中转仓", "Hong Kong", 0, 0, "InTransit"),
     ("HK-02", "所有仓库 - CSRH", CSRH, "中转仓", "Hong Kong", 0, 0, "InTransit"),
     ("HK-03", "所有仓库 - CSRH", CSRH, "中转仓", "Hong Kong", 0, 0, "InTransit"),
@@ -34,8 +32,8 @@ TREE = [
     ("BJ-SY", "所有仓库 - CSRH", CSRH, "自用仓", "China", 1, 0, "SelfUse"),
     ("GOOFISH", "所有仓库 - CSRH", CSRH, "虚拟仓", "China", 0, 1, "Sellable"),
     ("TIKTOK", "所有仓库 - CSRH", CSRH, "虚拟仓", "China", 0, 1, "Sellable"),
-    ("JP-ISTK", "所有仓库 - ISTK", ISO, "物流仓", "Japan", 0, 0, "InTransit"),
-    ("JP-ISTK-LOCAL", "所有仓库 - ISTK", ISO, "自用仓", "Japan", 1, 0, "SelfUse"),
+    ("JP", "所有仓库 - ISTK", ISO, "物流仓", "Japan", 0, 0, "InTransit"),
+    ("JP-LOCAL", "所有仓库 - ISTK", ISO, "自用仓", "Japan", 1, 0, "SelfUse"),
 ]
 
 ROOTS = [("所有仓库 - CSRH", CSRH), ("所有仓库 - ISTK", ISO)]

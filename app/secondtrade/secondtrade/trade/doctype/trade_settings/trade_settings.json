@@ -88,14 +88,16 @@
    "fieldtype": "Link",
    "label": "默认销售仓",
    "options": "Warehouse",
-   "default": "BJ-CSRH - CSRH"
+   "default": "BJ-CSRH - CSRH",
+   "description": "默认销售仓（北京仓）"
   },
   {
    "fieldname": "disassembly_warehouse",
    "fieldtype": "Link",
    "label": "默认拆解仓",
    "options": "Warehouse",
-   "default": "JP-ISTK - ISTK"
+   "default": "ISTK - JP",
+   "description": "默认拆解仓（日本仓）"
   },
   {
    "fieldname": "section_misc",

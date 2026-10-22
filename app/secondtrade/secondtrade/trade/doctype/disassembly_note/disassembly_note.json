@@ -80,7 +80,7 @@
    "label": "拆解仓",
    "options": "Warehouse",
    "reqd": 1,
-   "default": "JP-ISTK - ISTK",
+   "default": "ISTK - JP",
    "fetch_from": "purchase_receipt.stocking_warehouse"
   },
   {

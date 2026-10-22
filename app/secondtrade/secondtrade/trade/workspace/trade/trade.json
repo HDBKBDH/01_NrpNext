@@ -1,0 +1,83 @@
+{
+ "content": "[{\"type\": \"card\", \"header\": \"采购与拆解\", \"rows\": [{\"type\": \"doc\", \"label\": \"散件采购单\", \"doctype\": \"Loose Part Purchase\", \"link_to\": \"Loose Part Purchase\"}, {\"type\": \"doc\", \"label\": \"拆解单\", \"doctype\": \"Disassembly Note\", \"link_to\": \"Disassembly Note\"}]}, {\"type\": \"spacer\", \"size\": 1}, {\"type\": \"card\", \"header\": \"物流与报关\", \"rows\": [{\"type\": \"doc\", \"label\": \"物流批次\", \"doctype\": \"Logistics Batch\", \"link_to\": \"Logistics Batch\"}, {\"type\": \"doc\", \"label\": \"报关单\", \"doctype\": \"Customs Declaration\", \"link_to\": \"Customs Declaration\"}, {\"type\": \"doc\", \"label\": \"退税证据包\", \"doctype\": \"Evidence Package\", \"link_to\": \"Evidence Package\"}, {\"type\": \"doc\", \"label\": \"商品轨迹\", \"doctype\": \"Item Transit Record\", \"link_to\": \"Item Transit Record\"}]}, {\"type\": \"spacer\", \"size\": 1}, {\"type\": \"card\", \"header\": \"库存与行情\", \"rows\": [{\"type\": \"doc\", \"label\": \"行情价历史\", \"doctype\": \"Market Price History\", \"link_to\": \"Market Price History\"}, {\"type\": \"doc\", \"label\": \"用途变更\", \"doctype\": \"Purpose History\", \"link_to\": \"Purpose History\"}]}, {\"type\": \"spacer\", \"size\": 1}, {\"type\": \"card\", \"header\": \"工具\", \"rows\": [{\"type\": \"doc\", \"label\": \"标签打印\", \"doctype\": \"Label Print\", \"link_to\": \"Label Print\"}, {\"type\": \"doc\", \"label\": \"贸易设置\", \"doctype\": \"Trade Settings\", \"link_to\": \"Trade Settings\"}]}]",
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "Workspace",
+ "icon": "octicon octicon-package",
+ "label": "贸易",
+ "links": [
+  {
+   "label": "采购与拆解",
+   "type": "Card Break"
+  },
+  {
+   "label": "散件采购单",
+   "link_to": "Loose Part Purchase",
+   "type": "Link"
+  },
+  {
+   "label": "拆解单",
+   "link_to": "Disassembly Note",
+   "type": "Link"
+  },
+  {
+   "label": "物流与报关",
+   "type": "Card Break"
+  },
+  {
+   "label": "物流批次",
+   "link_to": "Logistics Batch",
+   "type": "Link"
+  },
+  {
+   "label": "报关单",
+   "link_to": "Customs Declaration",
+   "type": "Link"
+  },
+  {
+   "label": "退税证据包",
+   "link_to": "Evidence Package",
+   "type": "Link"
+  },
+  {
+   "label": "商品轨迹",
+   "link_to": "Item Transit Record",
+   "type": "Link"
+  },
+  {
+   "label": "库存与行情",
+   "type": "Card Break"
+  },
+  {
+   "label": "行情价历史",
+   "link_to": "Market Price History",
+   "type": "Link"
+  },
+  {
+   "label": "用途变更",
+   "link_to": "Purpose History",
+   "type": "Link"
+  },
+  {
+   "label": "工具",
+   "type": "Card Break"
+  },
+  {
+   "label": "标签打印",
+   "link_to": "Label Print",
+   "type": "Link"
+  },
+  {
+   "label": "贸易设置",
+   "link_to": "Trade Settings",
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "贸易",
+ "owner": "Administrator",
+ "public": 1,
+ "sequence": 10,
+ "title": "二手贸易管理"
+}

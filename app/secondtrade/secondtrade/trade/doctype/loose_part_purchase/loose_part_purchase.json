@@ -72,7 +72,7 @@
    "fieldtype": "Link",
    "label": "入库仓库",
    "options": "Warehouse",
-   "description": "日本仓（JP-ISTK）；散件先进日本仓，再随报关出境"
+   "description": "日本仓（JP）；散件先进日本仓，再随报关出境"
   },
   {
    "fieldname": "section_break_amount",

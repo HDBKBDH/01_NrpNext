@@ -8,3 +8,7 @@ secondtrade.patches.v1_0.create_warehouses
 secondtrade.patches.v1_0.create_trade_settings
 secondtrade.patches.v1_0.set_role_permissions
 secondtrade.patches.v1_0.rename_evidence_package_source
+secondtrade.patches.v1_0.rename_and_cleanup_warehouses
+secondtrade.patches.v1_0.create_trade_workspace
+secondtrade.patches.v1_0.fix_warehouse_names
+secondtrade.patches.v1_0.rollback_csrh_warehouse_names

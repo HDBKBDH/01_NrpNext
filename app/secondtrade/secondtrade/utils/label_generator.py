@@ -42,16 +42,18 @@ def build_label_payload(serial_numbers, remark=None):
         return ""
 
     # v16：Serial No 的主键字段是 serial_no
+    # 注意：v16 的 get_all / get_list 不再接受 as_dict 参数。
+    # 需要 dict 就用 frappe.db.get_value(..., as_dict=True)，
+    # 或者 frappe.get_all 返回的本来就是 dict 列表（默认行为）。
     rows = frappe.get_all(
         "Serial No",
         filters={"serial_no": ["in", serial_numbers]},
         fields=["serial_no", "item_code"],
-        as_dict=True,
     )
     if not rows:
         return ""
 
-    item_codes = [r["item_code"] for r in rows if r["item_code"]]
+    item_codes = [r.get("item_code") for r in rows if r.get("item_code")]
     item_map = {}
     if item_codes:
         for it in frappe.get_all(
@@ -61,11 +63,11 @@ def build_label_payload(serial_numbers, remark=None):
         ):
             item_map[it["name"]] = it["item_name"]
 
-    sn_to_item = {r["serial_no"]: r["item_code"] for r in rows}
+    sn_map = {r.get("serial_no"): r.get("item_code") for r in rows}
 
     lines = []
     for sn in serial_numbers:
-        cols = [item_map.get(sn_to_item.get(sn, ""), ""), sn]
+        cols = [item_map.get(sn_map.get(sn, ""), ""), sn]
         if remark:
             cols.append(remark.strip())
         lines.append("\t".join(cols))
@@ -73,11 +75,8 @@ def build_label_payload(serial_numbers, remark=None):
     return "\n".join(lines)
 
 
-def generate_qr_data_uri(serial_number, box_size=6, border=2):
-    """生成 SN 二维码的 Data URI
-
-    返回 "data:image/png;base64,xxxx"，可直接存进 Attach Image 字段。
-    """
+def _make_qr(serial_number, box_size=6, border=2):
+    """构造 QRCode 对象（校验 qrcode 依赖是否可用）"""
     try:
         import qrcode
     except ImportError:
@@ -96,8 +95,36 @@ def generate_qr_data_uri(serial_number, box_size=6, border=2):
     )
     qr.add_data(serial_number)
     qr.make(fit=True)
+    return qr
 
-    img = qr.make_image(fill_color="black", back_color="white")
+
+def generate_qr_png(serial_number, box_size=6, border=2):
+    """生成 SN 二维码 PNG，返回 bytes
+
+    用于存成 Frappe File（Attach 字段）。
+
+    不要用 Data URI 存 Attach Image 字段——
+    Frappe 的 Attach Image 组件会请求 /files/<value>，
+    拿到的是一串 base64 字符串，必然 404 图片显示不出来。
+    """
+    img = _make_qr(serial_number, box_size, border).make_image(
+        fill_color="black", back_color="white"
+    )
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def generate_qr_data_uri(serial_number, box_size=6, border=2):
+    """生成 SN 二维码的 Data URI
+
+    返回 "data:image/png;base64,xxxx"。
+    仅用于需要内联 base64 的场景（如 PDF 嵌入），
+    存 Frappe Attach 字段请用 generate_qr_png。
+    """
+    img = _make_qr(serial_number, box_size, border).make_image(
+        fill_color="black", back_color="white"
+    )
     buf = io.BytesIO()
     img.save(buf, format="PNG")
 
