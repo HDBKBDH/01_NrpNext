@@ -40,7 +40,7 @@
    "fieldname": "serial_number",
    "fieldtype": "Link",
    "label": "序列号",
-   "options": "Serial Number",
+   "options": "Serial No",
    "reqd": 1,
    "in_list_view": 1
   },

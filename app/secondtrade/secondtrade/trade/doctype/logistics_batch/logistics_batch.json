@@ -16,6 +16,9 @@
   "costs",
   "column_break2",
   "total_cost",
+  "local_disposal_income",
+  "allocatable_cost",
+  "column_break3",
   "section_alloc",
   "allocated",
   "remarks",
@@ -117,6 +120,28 @@
    "read_only": 1,
    "print_hide": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "column_break3",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "local_disposal_income",
+   "fieldtype": "Currency",
+   "label": "境内处置收入",
+   "options": "CNY",
+   "no_copy": 1,
+   "description": "日本境内拍卖/回收所得，冲减批次可分摊总额"
+  },
+  {
+   "fieldname": "allocatable_cost",
+   "fieldtype": "Currency",
+   "label": "可分摊总额",
+   "options": "CNY",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "支出合计 − 境内处置收入，实际按此金额分摊到零件"
   }
  ],
  "index_web_pages_for_search": 1,

@@ -15,7 +15,11 @@ COST_CATEGORY_LABELS = {
     "Insurance": "保险",
     "Refund": "退货返款",
     "Other": "其他",
+    "LocalDisposal": "境内处置收入",
 }
+
+# 不参与成本分摊的处置方式（日本境内处理）
+LOCAL_DISPOSITIONS = {"PartsOnly", "Scrap"}
 
 
 class LogisticsBatch(Document):
@@ -36,15 +40,36 @@ class LogisticsBatch(Document):
             )
 
     def calculate_total_cost(self):
-        total = sum(frappe.utils.flt(r.amount_cny) for r in self.costs)
-        self.total_cost = round(total, 2)
+        """计算批次费用
+
+        境内处置收入（LocalDisposal）是回收款，会冲减可分摊总额：
+          支出合计 = Σ(非LocalDisposal)
+          处置收入 = Σ(LocalDisposal)
+          可分摊总额 = 支出合计 - 处置收入
+        """
+        expense = 0.0
+        disposal = 0.0
+
+        for row in self.costs:
+            amt = frappe.utils.flt(row.amount_cny)
+            if row.cost_category == "LocalDisposal":
+                disposal += amt
+            else:
+                expense += amt
+
+        self.local_disposal_income = round(disposal, 2)
+        self.total_cost = round(expense, 2)
+        self.allocatable_cost = round(expense - disposal, 2)
 
     # ---------------- 分摊 ----------------
 
     def build_allocations(self):
-        """收集批次内所有零件，按参考价权重分摊批次成本"""
+        """收集批次内所有出口件，按参考价权重分摊批次可分摊成本
+
+        境内处理件（PartsOnly / Scrap）不参与分摊
+        """
         self.allocated = []
-        if not self.total_cost:
+        if not self.allocatable_cost:
             return
 
         rows = frappe.get_all(
@@ -52,6 +77,7 @@ class LogisticsBatch(Document):
             filters={
                 "parent": ("in", [s.disassembly_note for s in self.source_disassemblies]),
                 "docstatus": 1,
+                "disposition": ("not in", list(LOCAL_DISPOSITIONS)),
             },
             fields=[
                 "parent",
@@ -68,33 +94,36 @@ class LogisticsBatch(Document):
         weight_map = {r["serial_number"]: frappe.utils.flt(r["market_ref_price_cny"]) for r in rows}
         total_ref = sum(weight_map.values())
 
-        if total_ref <= 0:
-            # 参考价全为 0 时按件数均摊
-            per_item = self.total_cost / len(rows)
-            self.allocated = [
+        # 注意：self.allocated 是 Child Table（Allocation Detail）。
+        # 必须 append Document 对象，不能 append裸 dict——
+        # 裸dict 会让 Frappe 的 global_search/update_global_search
+        # 访问 d.parent 时抛 AttributeError: 'dict' object has no attribute 'parent'
+        def _append_row(r, ratio, cost):
+            row = frappe.get_doc(
                 {
+                    "doctype": "Cost Allocation",
                     "serial_number": r["serial_number"],
                     "item": r["item"],
                     "component_type": r["component_type"],
-                    "weight_ratio": 0,
-                    "allocated_cost": round(per_item, 2),
+                    "weight_ratio": round(ratio, 6),
+                    "allocated_cost": round(cost, 2),
                 }
-                for r in rows
-            ]
+            )
+            row.flags.ignore_permissions = True
+            row.flags.ignore_mandatory = True
+            self.allocated.append(row)
+
+        if total_ref <= 0:
+            # 参考价全为 0 时按件数均摊
+            per_item = self.allocatable_cost / len(rows)
+            for r in rows:
+                _append_row(r, 0, per_item)
             return
 
         for r in rows:
             sn = r["serial_number"]
             ratio = weight_map[sn] / total_ref
-            self.allocated.append(
-                {
-                    "serial_number": sn,
-                    "item": r["item"],
-                    "component_type": r["component_type"],
-                    "weight_ratio": round(ratio, 6),
-                    "allocated_cost": round(self.total_cost * ratio, 2),
-                }
-            )
+            _append_row(r, ratio, self.allocatable_cost * ratio)
 
     def write_back_to_disassembly(self):
         """把物流分摊结果写回拆解单，重算最终成本"""
@@ -113,25 +142,23 @@ class LogisticsBatch(Document):
         if not dn_items:
             return
 
-        # 允许提交
-        frappe.db.set_value(
-            "Disassembly Note Item",
-            {"parenttype": "Disassembly Note"},
-            None,
-        )
-
         name_map = {r["name"]: r for r in dn_items}
         for a in self.allocated:
+            sn = a.serial_number
+            cost = a.allocated_cost
+
             target = next(
-                (v for k, v in name_map.items() if v["serial_number"] == a.serial_number),
+                (v for k, v in name_map.items() if v["serial_number"] == sn),
                 None,
             )
             if not target:
                 continue
 
             doc = frappe.get_doc("Disassembly Note Item", target["name"])
-            doc.allocated_logistics_cost = a.allocated_cost
+            doc.allocated_logistics_cost = cost
             doc.final_cost = calculate_final_cost(doc)
+            # 子表行：跳过 update_after_submit 校验
+            #（ignore_validate_update 不是 save() 的合法参数，会 TypeError）
             doc.flags.ignore_permissions = True
             doc.flags.ignore_validate_update = True
-            doc.save(ignore_permissions=True, ignore_validate_update=True)
+            doc.save(ignore_permissions=True)

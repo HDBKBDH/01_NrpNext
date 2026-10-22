@@ -30,10 +30,16 @@ def allocate_by_reference_price(items, total_cost):
     for i in items:
         ref = frappe.utils.flt(i.get("market_ref_price_cny"))
         allocated = round(ref * ratio, 2)
-        target = i.get("_target")
-        if target is not None and hasattr(target, "allocated_cost"):
-            target.allocated_cost = allocated
         i["allocated_cost"] = allocated
+
+        # 写回 target。
+        # 注意：不要用 hasattr(target, "allocated_cost") 做前置判断——
+        # 适配器类（_AllocTarget）用 __setattr__ 转发写入，
+        # 实例上并没有 allocated_cost 这个属性，hasattr 会返回 False，
+        # 结果整段写入被静默跳过（分摊永远是 0）。
+        target = i.get("_target")
+        if target is not None:
+            setattr(target, "allocated_cost", allocated)
 
     return ratio
 

@@ -35,10 +35,11 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "命名规则",
-   "options": "DIS-",
+   "options": "DIS-\nYYMMDD-NN",
    "default": "DIS-",
    "print_hide": 1,
-   "no_copy": 1
+   "no_copy": 1,
+   "hidden": 1
   },
   {
    "fieldname": "dn_name",
@@ -47,7 +48,8 @@
    "read_only": 1,
    "allow_on_submit": 1,
    "no_copy": 1,
-   "set_only_once": 1
+   "set_only_once": 1,
+   "description": "文档主键，格式 YYMMDD-NN，提交前自动生成"
   },
   {
    "fieldname": "disassembly_date",
@@ -61,7 +63,7 @@
    "fieldtype": "Link",
    "label": "来源采购单",
    "options": "Purchase Receipt",
-   "reqd": 1
+   "description": "关联采购单；测试或手工录入时可留空"
   },
   {
    "fieldname": "company",
@@ -245,5 +247,5 @@
  "track_changes": 1,
  "track_seen": 1,
  "is_submittable": 1,
- "autoname": "naming_series:"
+ "autoname": "custom"
 }
