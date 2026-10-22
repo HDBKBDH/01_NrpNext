@@ -15,7 +15,6 @@
   "column_break_tsv",
   "label_text",
   "column_break_actions",
-  "generate_btn",
   "column_break_qr",
   "qr_image",
   "section_break_tpl",
@@ -78,11 +77,6 @@
   {
    "fieldname": "column_break_actions",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "generate_btn",
-   "fieldtype": "Button",
-   "label": "生成标签文本"
   },
   {
    "fieldname": "column_break_qr",

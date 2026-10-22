@@ -9,17 +9,30 @@
 
 frappe.ui.form.on("Label Print", {
 	refresh(frm) {
-		if (!frm.is_new() && frm.doc.serial_no) {
+		// validate 已生成 label_text，这里只负责渲染工具条
+		if (frm.doc.serial_no && frm.doc.label_text) {
 			frm.trigger("render_label_tools");
 		}
 	},
 
 	serial_no(frm) {
-		// 换 SN 就重新生成（不保存）
+		// 换 SN 就重新生成
+		//
+		// 用 frm.trigger 而不是 frm.call：
+		//   frm.call("refresh") → POST /api/method/run_doc_method
+		//     → handler.run_doc_method 取 method_obj.__func__
+		//     → is_whitelisted(fn) 检查 fn in frappe.whitelisted 集合
+		//
+		//   v16 的坑：@frappe.whitelist() 内部用
+		//     fn = validate_argument_types(fn, ...)   ← 返回新包装函数
+		//     whitelisted.add(fn)                     ← 注册的是包装后的对象
+		//   但 __func__ 拿到的是原始函数，两边 identity 不一致
+		//   → 白名单永远命中不了，必报 PermissionError
+		//
+		// frm.trigger 走 doc.run_method()，是框架内部调用路径，不做 whitelist 检查。
 		if (frm.doc.serial_no) {
-			frm.call("refresh").then(() => {
-				frm.trigger("render_label_tools");
-			});
+			frm.refresh();
+			frm.trigger("render_label_tools");
 		}
 	},
 
@@ -32,10 +45,15 @@ frappe.ui.form.on("Label Print", {
 
 		// 在 label_text 字段上方插入工具条
 		const field = frm.get_field("label_text");
-		if (!field || frm.__label_tools_injected) {
+		if (!field) {
 			return;
 		}
-		frm.__label_tools_injected = true;
+
+		// 幂等：同一份 DOM 里只插一次，DOM 重建后自动重插
+		const $existing = $(field.wrapper).find(".label-tools");
+		if ($existing.length) {
+			$existing.remove();
+		}
 
 		const $wrap = $(`
 			<div class="label-tools" style="
@@ -43,9 +61,13 @@ frappe.ui.form.on("Label Print", {
 				display: flex;
 				gap: 8px;
 				align-items: center;
+				flex-wrap: wrap;
 			">
 				<button class="btn btn-sm btn-primary label-copy-btn">
-					<i class="octicon octicon-copy"></i> 复制标签文本
+					<i class="octicon octicon-clippy"></i> 复制标签文本
+				</button>
+				<button class="btn btn-sm btn-default label-save-btn">
+					<i class="octicon octicon-save"></i> 保存备查
 				</button>
 				<span class="label-hint text-muted" style="font-size: 12px;">
 					粘贴到 Brother P-touch Editor 的表格里排版
@@ -78,6 +100,16 @@ frappe.ui.form.on("Label Print", {
 				$ta.remove();
 				done();
 			}
+		});
+
+		// 「保存备查」：记录谁在什么时候给哪个 SN 打了标签
+		$wrap.on("click", ".label-save-btn", function () {
+			frm.save().then(() => {
+				frappe.show_alert({
+					message: __("已保存备查"),
+					indicator: "green",
+				});
+			});
 		});
 	},
 });

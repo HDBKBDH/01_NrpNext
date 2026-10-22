@@ -22,20 +22,21 @@ class LabelPrint(Document):
         self._build_text()
         self._build_qr()
 
-    @frappe.whitelist()
-    def refresh(self, arg=None):
-        """按钮「生成标签文本」调用
-
-        这是 server method（前端 frm.call 会走 HTTP 请求），
-        必须加 @frappe.whitelist() 装饰器，否则报：
-            您无权访问此资源 … 申明前未添加@frappe.whitelist()装饰器
-        """
-        frappe.clear_messages()
-        self.validate()
-        self.save(ignore_permissions=True)
-        frappe.msgprint(_("标签文本已生成，可点击文本框全选拷贝"), indicator="green")
-
     # ---------------- 内部 ----------------
+    #
+    # 注意：这里刻意不提供任何 server method（如「生成标签文本」按钮）。
+    #
+    # 原因：Frappe v16 的 @frappe.whitelist() 在 DocType 方法上有 bug——
+    #   frappe/__init__.py: whitelist() 内部
+    #       fn = validate_argument_types(fn, apply_condition=...)  ← 新对象
+    #       whitelisted.add(fn)                                     ← 注册新对象
+    #   而 frappe/handler.py: run_doc_method 取
+    #       fn = getattr(getattr(doc, method), "__func__", ...)     ← 原始函数
+    #       is_whitelisted(fn)                                      ← 查原始函数
+    #   两者 identity 不一致 → 白名单永远命中不了，必报 PermissionError。
+    #
+    # 前端改用 frm.refresh() / frm.save()（走 doc.run_method 的内部调用路径），
+    # 不经过 whitelist 检查，也就不需要 @frappe.whitelist()。
 
     def _load_item(self):
         """从 Serial No 反查 Item 完整信息"""
