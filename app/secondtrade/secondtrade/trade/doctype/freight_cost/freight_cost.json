@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sequence",
+  "cost_category",
+  "cost_category_name",
+  "amount_cny",
+  "currency",
+  "amount_original",
+  "is_refund",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "sequence",
+   "fieldtype": "Int",
+   "label": "序号",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost_category",
+   "fieldtype": "Select",
+   "label": "费用类型",
+   "options": "LocalShipping\nLocalStorage\nExportFreight\nHKTransit\nCNTransport\nCustomsDuty\nCustomsAgent\nInsurance\nRefund\nOther",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost_category_name",
+   "fieldtype": "Data",
+   "label": "类型说明",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "amount_cny",
+   "fieldtype": "Currency",
+   "label": "金额",
+   "options": "CNY",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "原币种",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "amount_original",
+   "fieldtype": "Float",
+   "label": "原币金额"
+  },
+  {
+   "fieldname": "is_refund",
+   "fieldtype": "Check",
+   "label": "是否退款"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Freight Cost",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "istable": 1
+}

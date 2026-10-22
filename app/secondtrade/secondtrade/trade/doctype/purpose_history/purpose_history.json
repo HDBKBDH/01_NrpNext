@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "from_purpose",
+  "to_purpose",
+  "changed_at",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "from_purpose",
+   "fieldtype": "Select",
+   "label": "原用途",
+   "options": "\nSelfUse\nSale"
+  },
+  {
+   "fieldname": "to_purpose",
+   "fieldtype": "Select",
+   "label": "新用途",
+   "options": "\nSelfUse\nSale",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "changed_at",
+   "fieldtype": "Datetime",
+   "label": "变更时间",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Purpose History",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "istable": 1
+}

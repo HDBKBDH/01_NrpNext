@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_cost",
+  "capital_cost_rate",
+  "holding_cost_start",
+  "column_break1",
+  "section_fx",
+  "jpy_reference_rate",
+  "hkd_reference_rate",
+  "usd_reference_rate",
+  "column_break2",
+  "section_wh",
+  "default_warehouse",
+  "disassembly_warehouse",
+  "section_misc",
+  "version",
+  "label_printer"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_cost",
+   "fieldtype": "Section Break",
+   "label": "成本参数"
+  },
+  {
+   "fieldname": "capital_cost_rate",
+   "fieldtype": "Percent",
+   "label": "年化资金成本率",
+   "default": "8.0",
+   "description": "用于资金占用成本计算：库存成本 × 费率 × 持有天数/365"
+  },
+  {
+   "fieldname": "holding_cost_start",
+   "fieldtype": "Select",
+   "label": "持有天数起算",
+   "options": "\nPurchaseDate\nDisassemblyDate\nArrivalDate",
+   "default": "PurchaseDate"
+  },
+  {
+   "fieldname": "column_break1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "section_fx",
+   "fieldtype": "Section Break",
+   "label": "参考汇率（仅记录用）"
+  },
+  {
+   "fieldname": "jpy_reference_rate",
+   "fieldtype": "Float",
+   "label": "JPY 参考汇率",
+   "precision": "6",
+   "default": "0.043",
+   "description": "仅作参考记录，实际成本以 CNY 结算金额为准"
+  },
+  {
+   "fieldname": "hkd_reference_rate",
+   "fieldtype": "Float",
+   "label": "HKD 参考汇率",
+   "precision": "4",
+   "default": "0.92"
+  },
+  {
+   "fieldname": "usd_reference_rate",
+   "fieldtype": "Float",
+   "label": "USD 参考汇率",
+   "precision": "4",
+   "default": "7.10"
+  },
+  {
+   "fieldname": "column_break2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "section_wh",
+   "fieldtype": "Section Break",
+   "label": "默认仓库"
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "默认销售仓",
+   "options": "Warehouse",
+   "default": "BJ-CSRH - CSRH"
+  },
+  {
+   "fieldname": "disassembly_warehouse",
+   "fieldtype": "Link",
+   "label": "默认拆解仓",
+   "options": "Warehouse",
+   "default": "JP-ISTK - ISTK"
+  },
+  {
+   "fieldname": "section_misc",
+   "fieldtype": "Section Break",
+   "label": "其他"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "配置版本",
+   "default": "1.0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "label_printer",
+   "fieldtype": "Data",
+   "label": "标签机型号",
+   "default": "Brother P710BT",
+   "description": "24mm 标签纸，热敏打印"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Trade Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "issingle": 1
+}

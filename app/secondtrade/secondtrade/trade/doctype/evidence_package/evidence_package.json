@@ -1,0 +1,141 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "disassembly_note",
+  "company",
+  "column_break1",
+  "generated_at",
+  "generated_by",
+  "file_count",
+  "section_files",
+  "package_file",
+  "manifest",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "命名规则",
+   "options": "EVID-",
+   "default": "EVID-",
+   "print_hide": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "disassembly_note",
+   "fieldtype": "Link",
+   "label": "来源拆解单",
+   "options": "Disassembly Note",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "公司",
+   "options": "Company",
+   "fetch_from": "disassembly_note.company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "generated_at",
+   "fieldtype": "Datetime",
+   "label": "生成时间",
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "Now"
+  },
+  {
+   "fieldname": "generated_by",
+   "fieldtype": "Link",
+   "label": "生成人",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "Administrator"
+  },
+  {
+   "fieldname": "file_count",
+   "fieldtype": "Int",
+   "label": "文件数量",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_files",
+   "fieldtype": "Section Break",
+   "label": "生成文件"
+  },
+  {
+   "fieldname": "package_file",
+   "fieldtype": "Attach",
+   "label": "证据包",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "manifest",
+   "fieldtype": "Small Text",
+   "label": "清单说明",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "修订自",
+   "options": "Evidence Package",
+   "read_only": 1,
+   "print_hide": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Evidence Package",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "track_seen": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:"
+}

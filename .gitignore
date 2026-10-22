@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Frappe / ERPNext
+*.log
+logs/
+sites/
+env/
+config/
+assets/
+node_modules/
+*.pyc
+
+# 数据库备份（含敏感数据）
+*.sql
+*.sql.gz
+*.tgz
+backup/
+backups/
+
+# 密钥与凭据（绝对不能提交）
+.env
+.env.*
+*.pem
+*.key
+secrets/
+credentials.json
+id_rsa*
+
+# 上传文件与图片
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+!docs/**/*.png
+!docs/**/*.jpg
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 临时文件
+*.bak
+*.bak-*
+*.orig
+*.tmp
+nohup.out

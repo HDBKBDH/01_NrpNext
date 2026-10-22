@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "batch_date",
+  "column_break1",
+  "coverage_start",
+  "coverage_end",
+  "section_source",
+  "source_disassemblies",
+  "section_cost",
+  "costs",
+  "column_break2",
+  "total_cost",
+  "section_alloc",
+  "allocated",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "命名规则",
+   "options": "BATCH-",
+   "default": "BATCH-",
+   "print_hide": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "batch_date",
+   "fieldtype": "Date",
+   "label": "批次日期",
+   "reqd": 1,
+   "default": "Today"
+  },
+  {
+   "fieldname": "column_break1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "coverage_start",
+   "fieldtype": "Date",
+   "label": "覆盖开始"
+  },
+  {
+   "fieldname": "coverage_end",
+   "fieldtype": "Date",
+   "label": "覆盖结束"
+  },
+  {
+   "fieldname": "section_source",
+   "fieldtype": "Section Break",
+   "label": "来源拆解单"
+  },
+  {
+   "fieldname": "source_disassemblies",
+   "fieldtype": "Table",
+   "label": "",
+   "options": "Source Disassembly",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_cost",
+   "fieldtype": "Section Break",
+   "label": "费用明细"
+  },
+  {
+   "fieldname": "costs",
+   "fieldtype": "Table",
+   "label": "",
+   "options": "Freight Cost",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "label": "批次总成本",
+   "options": "CNY",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_alloc",
+   "fieldtype": "Section Break",
+   "label": "分摊明细"
+  },
+  {
+   "fieldname": "allocated",
+   "fieldtype": "Table",
+   "label": "",
+   "options": "Cost Allocation",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "修订自",
+   "options": "Logistics Batch",
+   "read_only": 1,
+   "print_hide": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Logistics Batch",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "track_seen": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:"
+}

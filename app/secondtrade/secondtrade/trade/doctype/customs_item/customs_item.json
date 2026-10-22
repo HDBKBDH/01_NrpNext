@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "serial_number",
+  "item",
+  "component_type",
+  "model_name",
+  "quantity",
+  "declared_price",
+  "declared_amount",
+  "image"
+ ],
+ "fields": [
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Link",
+   "label": "序列号",
+   "options": "Serial Number",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "型号",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "label": "类型",
+   "options": "\nCPU\nMEM\nGPU\nMB\nNVME\nPSU\nCHS",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "model_name",
+   "fieldtype": "Data",
+   "label": "型号全称",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "label": "数量",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "declared_price",
+   "fieldtype": "Currency",
+   "label": "申报单价",
+   "options": "CNY",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "declared_amount",
+   "fieldtype": "Currency",
+   "label": "申报金额",
+   "options": "CNY",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach",
+   "label": "商品图片"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Customs Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "istable": 1
+}

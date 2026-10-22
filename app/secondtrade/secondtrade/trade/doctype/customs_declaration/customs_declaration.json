@@ -1,0 +1,203 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "declaration_no",
+  "declaration_date",
+  "declaration_type",
+  "company",
+  "port",
+  "column_break1",
+  "logistics_batch",
+  "declared_value",
+  "item_count",
+  "tax_refund_status",
+  "section_items",
+  "items",
+  "column_break2",
+  "section_evidence",
+  "evidence_files",
+  "hk_arrival_date",
+  "hk_arrival_doc_no",
+  "hk_arrival_files",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "命名规则",
+   "options": "CUSTOMS-",
+   "default": "CUSTOMS-",
+   "print_hide": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "declaration_no",
+   "fieldtype": "Data",
+   "label": "报关单号",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "declaration_date",
+   "fieldtype": "Date",
+   "label": "报关日期",
+   "reqd": 1,
+   "default": "Today"
+  },
+  {
+   "fieldname": "declaration_type",
+   "fieldtype": "Select",
+   "label": "报关类型",
+   "options": "Freight\nPersonalCarry\nSample",
+   "reqd": 1,
+   "default": "Freight"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "公司",
+   "options": "Company",
+   "reqd": 1,
+   "default": "ISOTENKAI"
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Data",
+   "label": "口岸"
+  },
+  {
+   "fieldname": "column_break1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "logistics_batch",
+   "fieldtype": "Link",
+   "label": "关联物流批次",
+   "options": "Logistics Batch"
+  },
+  {
+   "fieldname": "declared_value",
+   "fieldtype": "Currency",
+   "label": "申报价值",
+   "options": "CNY",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item_count",
+   "fieldtype": "Int",
+   "label": "件数",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "tax_refund_status",
+   "fieldtype": "Select",
+   "label": "退税状态",
+   "options": "Completed\nPendingProof\nUndetermined\nPersonalSeller",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "section_items",
+   "fieldtype": "Section Break",
+   "label": "商品明细"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "",
+   "options": "Customs Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "section_evidence",
+   "fieldtype": "Section Break",
+   "label": "凭证"
+  },
+  {
+   "fieldname": "evidence_files",
+   "fieldtype": "Attach",
+   "label": "报关凭证",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "hk_arrival_date",
+   "fieldtype": "Date",
+   "label": "香港到岸日期",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "hk_arrival_doc_no",
+   "fieldtype": "Data",
+   "label": "到岸单号",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "hk_arrival_files",
+   "fieldtype": "Attach",
+   "label": "到岸凭证",
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "修订自",
+   "options": "Customs Declaration",
+   "read_only": 1,
+   "print_hide": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "trade",
+ "name": "Customs Declaration",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "track_seen": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:"
+}
