@@ -137,3 +137,31 @@ def execute():
 
     frappe.db.commit()
     print(f"  仓库: 新建 {created}，更新 {updated}，跳过 {skipped}")
+
+    # 3. 设置每个 Company 的默认收货仓
+    #
+    # ERPNext 建 Company 时会建一个 warehouse_name='仓库' 的默认收货仓
+    # 并写进 Company.default_warehouse。我们用自己的实体仓代替它。
+    # （仓库「仓库」本身在 split_companies 里会被删掉）
+    DEFAULT_WAREHOUSE = {
+        CSRH: "BJ-CSRH",
+        SY: "BJ-SY",
+        HK: "HK-01",
+        SZ: "SZ-01",
+        GF: "GF01",
+        TT: "TT01",
+        ISO: "JP",
+    }
+    for company, wh_name in DEFAULT_WAREHOUSE.items():
+        if not frappe.db.exists("Company", company):
+            continue
+        actual = frappe.db.get_value(
+            "Warehouse", {"warehouse_name": wh_name, "company": company}, "name"
+        )
+        if not actual:
+            print(f"  ! {company}: 找不到 {wh_name}，跳过默认仓设置")
+            continue
+        cur = frappe.db.get_value("Company", company, "default_warehouse")
+        if cur != actual:
+            frappe.db.set_value("Company", company, "default_warehouse", actual)
+            print(f"  ✓ {company}.default_warehouse = {actual}")

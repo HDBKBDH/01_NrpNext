@@ -316,6 +316,44 @@ def execute():
     #   + Finished Goods + Goods In Transit
     # 我们用自己的「所有仓库」体系，这套英文的是冗余的。
     # 实测这 25 个全部零引用（Stock Ledger Entry / Bin / Stock Entry 都是 0）。
+    #
+    # 删之前必须先修 Company.default_warehouse
+    # （它指向的 Stores - XX 马上就要被删，不改就成了悬空引用）
+    #
+    # 各 Company 的默认收货仓指向自己的第一个实体仓：
+    #   CSRH        → BJ-CSRH
+    #   SY          → BJ-SY
+    #   HK          → HK-01
+    #   SZ          → SZ-01
+    #   GF          → GF01
+    #   TT          → TT01
+    #   ISOTENKAI   → JP
+    DEFAULT_WAREHOUSE = {
+        "CSRH": "BJ-CSRH",
+        "SY": "BJ-SY",
+        "HK": "HK-01",
+        "SZ": "SZ-01",
+        "GF": "GF01",
+        "TT": "TT01",
+        "ISOTENKAI": "JP",
+    }
+
+    print()
+    print("=== 修 Company 默认仓库指向 ===")
+    for co, wh_name in DEFAULT_WAREHOUSE.items():
+        actual = frappe.db.get_value(
+            "Warehouse", {"warehouse_name": wh_name, "company": co}, "name"
+        )
+        if not actual:
+            print(f"  ! {co}: 找不到 {wh_name}，跳过")
+            continue
+        cur = frappe.db.get_value("Company", co, "default_warehouse")
+        if cur == actual:
+            continue
+        frappe.db.set_value("Company", co, "default_warehouse", actual)
+        frappe.db.commit()
+        print(f"  ✓ {co}.default_warehouse: {cur!r} → {actual!r}")
+
     ENGLISH_DEFAULTS = (
         "Stores",
         "Work In Progress",
@@ -351,6 +389,52 @@ def execute():
             except Exception as e:
                 print(f"  ! 删除 All Warehouses ({name}) 失败: {e}")
     frappe.db.commit()
+
+    # 3.97 删除 ERPNext 建的默认收货仓「仓库」
+    #
+    # ERPNext 初始化时为最早的 Company 建一个 warehouse_name='仓库' 的默认收货仓，
+    # 并写进 Company.default_warehouse。
+    # 我们已有 BJ-CSRH / JP 等实体仓，这个是多余的。
+    #
+    # 前置条件（已在上一步把 default_warehouse 指向实体仓）：
+    #   - 该仓零引用
+    #   - 该仓没有子节点
+    print()
+    print("=== 删除多余的默认收货仓「仓库」===")
+    for (wn,) in frappe.db.sql(
+        "SELECT name FROM `tabWarehouse` WHERE warehouse_name = '仓库'"
+    ):
+        kids = frappe.db.sql(
+            "SELECT COUNT(*) FROM `tabWarehouse` WHERE parent_warehouse = %s", (wn,)
+        )[0][0]
+        if kids:
+            print(f"  ! {wn} 有 {kids} 个子仓库，跳过")
+            continue
+
+        refs = []
+        for t in ("Stock Ledger Entry", "Bin", "Stock Entry Detail", "Serial No",
+                  "Loose Part Purchase", "Disassembly Note"):
+            try:
+                c = frappe.db.count(t, {"warehouse": wn})
+                if c:
+                    refs.append(f"{t}={c}")
+            except Exception:
+                pass
+        if refs:
+            print(f"  ! {wn} 有引用 {refs}，跳过")
+            continue
+
+        # 确认没有 Company 指向它
+        pointing = frappe.db.sql(
+            "SELECT name FROM `tabCompany` WHERE default_warehouse = %s", (wn,)
+        )
+        if pointing:
+            print(f"  ! {wn} 仍被 Company {pointing} 引用，跳过")
+            continue
+
+        frappe.delete_doc("Warehouse", wn, force=True, ignore_permissions=True)
+        frappe.db.commit()
+        print(f"  ✓ 删除 {wn}")
 
     # 4. 结果
     print()
