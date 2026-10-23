@@ -25,6 +25,7 @@ doctype_js = {
     "Customs Declaration": "public/js/customs_declaration.bundle.js",
     "Stock In": "public/js/stock_in.bundle.js",
 }
+# v16 已移除 doctype_css 机制，CSS 改放 doctype/<name>/<name>.css
 doctype_css = {}
 # home_page = "login"
 # website_route_rules = [ ]

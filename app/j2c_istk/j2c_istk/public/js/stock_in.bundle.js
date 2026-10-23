@@ -6,14 +6,22 @@
 //   5. 选已有编号 → 自动带出厂商/型号/规格
 
 frappe.ui.form.on("Stock In", {
+    onload(frm) {
+        // 隐藏 Link 的「打开链接」按钮（🔗）。
+        // 用 querySelector 直接查 DOM，不碰 frm.docfields ——
+        // onload 时它可能还没渲染，访问会抛 undefined.find。
+        setTimeout(() => hide_link_open_button(), 400);
+    },
+
     refresh(frm) {
-        if (frm.is_new()) {
+        if (typeof frm.is_new === "function" && frm.is_new()) {
             frm.set_value("qty", 1);
             frm.set_value("uom", "单个");
             if (!(frm.doc.serial_numbers || []).length) {
                 frm.add_row("serial_numbers");
             }
         }
+        setTimeout(() => hide_link_open_button(), 400);
     },
 
     // ---- 仓库 → 公司 ----
@@ -24,6 +32,12 @@ frappe.ui.form.on("Stock In", {
         }
         frappe.db.get_value("Warehouse", frm.doc.warehouse, "company", (r) => {
             frm.set_value("company", r.message ? r.message.company : "");
+            // Frappe 会给「空值 + read_only」的字段加 hide-control 导致不可见，
+            // 带出公司值后必须显式显示。
+            // v16 只有 refresh_field / toggle_display，没有 show_dependent_label。
+            frm.refresh_field("company");
+            frm.toggle_display("company", true);
+            hide_link_open_button();
         });
     },
 
@@ -44,6 +58,21 @@ frappe.ui.form.on("Stock In", {
         }
     }
 });
+
+/** 隐藏 Link 字段的 🔗 跳转按钮（v16 的 class 是 .btn-open） */
+function hide_link_open_button() {
+    try {
+        document.querySelectorAll(".btn-open").forEach((b) => {
+            // 只隐藏 warehouse 字段里的，别误伤其他 Link
+            const wrap = b.closest('[data-fieldname]');
+            if (wrap && wrap.getAttribute("data-fieldname") === "warehouse") {
+                b.style.display = "none";
+            }
+        });
+    } catch (e) {
+        /* DOM 还没就绪 */
+    }
+}
 
 /** CNY = (采购价 + 运费 - 折扣) × 汇率 */
 function recalc_cny(frm) {
@@ -78,29 +107,3 @@ frappe.ui.form.on("Stock In Item", {
             .catch(() => {});
     }
 });
-
-/**
- * 商品编号输入框：显示最近录入过的编号作为提示。
- * 用 Link 风格的过滤查询，实现在点击输入框时弹出最近 10 条。
- */
-function setup_serial_lookup(frm) {
-    const dfa = frm.docfields.find(
-        (d) => d.fieldname === "serial_numbers" && d.reqd
-    );
-    if (!dfa) return;
-
-    // 在子表编辑器里给 serial_no 列加 query
-    const grid = dfa.grid;
-    if (!grid || grid.docfields.__lookup_installed) return;
-    grid.docfields.__lookup_installed = true;
-
-    const df = grid.docfields.find((d) => d.fieldname === "serial_no");
-    if (!df) return;
-
-    df.get_query = function () {
-        return {
-            query: "j2c_istk.j2c_istk.doctype.stock_in.stock_in.get_recent_serials",
-        };
-    };
-    frm.refresh_field("serial_numbers");
-}

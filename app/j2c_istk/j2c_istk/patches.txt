@@ -18,3 +18,5 @@ j2c_istk.patches.v1_0.isolate_item_groups
 j2c_istk.patches.v1_0.split_companies
 j2c_istk.patches.v1_0.add_company_default_warehouse_column
 j2c_istk.patches.v1_0.add_stock_in_sidebar
+j2c_istk.patches.v1_0.fix_stock_in_field_idx
+j2c_istk.patches.v1_0.set_date_format_iso

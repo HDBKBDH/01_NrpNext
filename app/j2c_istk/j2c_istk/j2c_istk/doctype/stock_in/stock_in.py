@@ -16,6 +16,13 @@ DEFAULT_UOM = "Nos"
 
 
 class StockIn(Document):
+    def before_validate(self):
+        """新建时给个默认仓库 + 公司，避免首屏空值字段被 Frappe 隐藏。"""
+        if self.is_new() and not self.warehouse:
+            default_wh = frappe.db.get_single_value("Trade Settings", "disassembly_warehouse")
+            if default_wh and frappe.db.exists("Warehouse", default_wh):
+                self.warehouse = default_wh
+
     def validate(self):
         self.validate_category()
         self.validate_serial_count()
@@ -27,6 +34,52 @@ class StockIn(Document):
 
     def on_submit(self):
         self.create_stock_entry()
+        if self.category == "整机":
+            self.create_split_items()
+
+    def create_split_items(self):
+        """整机入库后，为每个商品编号生成对应的拆分件入库单。
+
+        拆分件是整机的组成部分，继承整机的采购价/汇率/仓库，
+        通过 parent_item 关联回整机，不可手动创建。
+        """
+        created = []
+        for idx, row in enumerate(self.serial_numbers or []):
+            if not row.serial_no:
+                continue
+
+            child = frappe.get_doc({
+                "doctype": "Stock In",
+                "category": "拆分件",
+                "parent_item": self.name,
+                "purchase_date": self.purchase_date,
+                "stock_datetime": self.stock_datetime,
+                "arrival_datetime": self.arrival_datetime,
+                "warehouse": self.warehouse,
+                "manufacturer": self.manufacturer,
+                "model": self.model,
+                "specification": self.specification,
+                "qty": 1,
+                "uom": "单个",
+                "purchase_price_jpy": 0,      # 成本在整机上记录，拆分件不重复计
+                "shipping_jpy": 0,
+                "discount": 0,
+                "exchange_rate": flt(self.exchange_rate),
+                "tax_refund_status": self.tax_refund_status,
+                "logistics_status": self.logistics_status,
+                "remarks": _("由整机 {0} 第 {1} 件拆分生成").format(self.name, idx + 1),
+                "serial_numbers": [{"serial_no": row.serial_no}],
+            })
+            child.flags.ignore_permissions = True
+            child.flags.ignore_validate = True   # 跳过「拆分件不可手动创建」校验
+            child.flags.from_split = True
+            child.insert()
+            created.append(child.name)
+
+        if created:
+            frappe.msgprint(_("已生成 {0} 张拆分件入库单：{1}").format(
+                len(created), "、".join(created)), alert=True)
+        return created
 
     def on_cancel(self):
         self.cancel_stock_entry()
@@ -34,8 +87,19 @@ class StockIn(Document):
     # ---------- 校验 ----------
 
     def validate_category(self):
+        # 下拉只提供「散件 / 整机」；「拆分件」由整机入库单自动生成，
+        # 不在 options 里，但内部仍作为合法类别使用。
         if self.category not in ("散件", "整机", "拆分件"):
             frappe.throw(_("类别无效：{0}").format(self.category))
+
+        if self.category == "拆分件":
+            if not self.parent_item:
+                frappe.throw(_("拆分件必须关联父整机，不能单独创建"))
+            if self.is_new() and not self.flags.get("from_split"):
+                frappe.throw(_("拆分件由整机入库单自动生成，不可手动创建"))
+            parent_cat = frappe.db.get_value("Stock In", self.parent_item, "category")
+            if parent_cat != "整机":
+                frappe.throw(_("父单据 {0} 不是整机入库单").format(self.parent_item))
 
     def validate_serial_count(self):
         """单位为「对」需 2 个编号；其他单位只能 1 个。"""
@@ -162,8 +226,8 @@ class StockIn(Document):
             "doctype": "Stock Entry",
             "stock_entry_type": "Material Receipt",
             "company": self.company,
-            "posting_date": self.stock_date,
-            "remarks": _("入库单 {0}（{1}）").format(self.name, self.category),
+            "posting_date": self.purchase_date,
+            "remarks": _("入库 {0}（{1}）").format(self.name, self.category),
             "items": items,
         })
         se.flags.ignore_permissions = True

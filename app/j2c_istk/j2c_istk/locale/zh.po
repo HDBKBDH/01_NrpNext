@@ -219,3 +219,57 @@ msgstr "散件采购明细"
 
 msgid "LPP-"
 msgstr "散件采购单号前缀"
+
+msgid "Stock In"
+msgstr "入库单"
+
+msgid "Stock In Item"
+msgstr "入库商品明细"
+
+msgid "散件"
+msgstr "散件"
+
+msgid "整机"
+msgstr "整机"
+
+msgid "拆分件"
+msgstr "拆分件"
+
+msgid "单个"
+msgstr "单个"
+
+msgid "对"
+msgstr "对"
+
+msgid "台"
+msgstr "台"
+
+msgid "Completed"
+msgstr "已完成退税"
+
+msgid "PendingProof"
+msgstr "未退税有领收书"
+
+msgid "Undetermined"
+msgstr "未退税无领收书"
+
+msgid "PersonalSellerNoReceipt"
+msgstr "个人卖家无领收书"
+
+msgid "InJapan"
+msgstr "日本境内"
+
+msgid "ArrivedHK"
+msgstr "已到香港"
+
+msgid "ArrivedSZ"
+msgstr "已到深圳"
+
+msgid "ArrivedBJ"
+msgstr "已到北京"
+
+msgid "Sold"
+msgstr "已售出"
+
+msgid "Returned"
+msgstr "已退货"

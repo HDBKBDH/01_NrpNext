@@ -1,0 +1,31 @@
+/* 入库单 —— 表单样式调整
+   1. 收窄 Select 控件（Frappe v16 的 layout.js 不读 DocField.width）
+   2. 隐藏 Date/Datetime 下方的时区提示（"Asia/Shanghai"）
+   CSS 必须放 doctype/<name>/<name>.css —— v16 已移除 doctype_css hook。 */
+
+/* ---- 收窄下拉 ---- */
+[data-fieldname="category"],
+[data-fieldname="warehouse"] {
+	max-width: 120px !important;
+}
+
+[data-fieldname="category"] .control-input,
+[data-fieldname="category"] .select-input,
+[data-fieldname="category"] input,
+[data-fieldname="warehouse"] .control-input,
+[data-fieldname="warehouse"] .select-input,
+[data-fieldname="warehouse"] input {
+	max-width: 120px !important;
+	width: 120px !important;
+}
+
+/* ---- 隐藏时区提示 ----
+   Frappe 的 Date 控件在输入框下方渲染 .help-box 显示系统时区，
+   这里对所有日期字段隐藏。 */
+[data-fieldname$="date"] .help-box,
+[data-fieldname$="datetime"] .help-box,
+[data-fieldname="stock_datetime"] .help-box,
+[data-fieldname="arrival_datetime"] .help-box,
+[data-fieldname="purchase_date"] .help-box {
+	display: none !important;
+}

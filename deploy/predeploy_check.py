@@ -57,6 +57,68 @@ def check_json(path, name):
     return d
 
 
+# v16 已从 DocField 删除的字段 —— JSON 里出现会导致 migrate 报
+#   MySQLdb.OperationalError: (1054, "Unknown column 'X' in 'SELECT'")
+REMOVED_FIELDS = {"filters", "doctype_or_field"}
+
+# v16 已移除的前端 API —— 用了会在浏览器控制台抛 TypeError，
+# 而且因为只是抛异常、没有编译错误，能静默很久。
+# 来源：frappe/public/js/frappe/form/form.js 实际方法列表 + 用户实测报错
+REMOVED_JS_APIS = [
+    "show_dependent_label",   # frm.dashboard.show_dependent_label is not a function
+    "grid.docfields",         # 子表 grid API 已变
+]
+
+
+def check_removed_js_apis():
+    import os
+    import re
+    bad = []
+    root = os.path.join(os.path.dirname(__file__), "..", "app")
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ("__pycache__", "node_modules")]
+        for fn in filenames:
+            if not fn.endswith((".js", ".bundle.js")):
+                continue
+            p = os.path.join(dirpath, fn)
+            try:
+                src = open(p, encoding="utf-8").read()
+            except Exception:
+                continue
+            for line in src.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
+                    continue        # 注释里提到不算
+                for api in REMOVED_JS_APIS:
+                    if api in stripped:
+                        bad.append(f"{fn}:{api}")
+    return bad
+
+
+def check_removed_fields():
+    import json
+    import os
+    bad = []
+    root = os.path.join(os.path.dirname(__file__), "..", "app")
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ("__pycache__", "node_modules")]
+        for fn in filenames:
+            if not fn.endswith(".json"):
+                continue
+            p = os.path.join(dirpath, fn)
+            try:
+                d = json.load(open(p, encoding="utf-8"))
+            except Exception:
+                continue
+            if not isinstance(d, dict) or "fields" not in d:
+                continue
+            for f in d.get("fields", []):
+                for k in REMOVED_FIELDS:
+                    if k in f:
+                        bad.append(f"{os.path.basename(p)}:{f.get('fieldname')}.{k}")
+    return bad
+
+
 def main():
     if not os.path.isdir(DT_ROOT):
         print(f"✗ 找不到 {DT_ROOT}（请在 app/j2c_istk 目录下运行）")

@@ -11,7 +11,7 @@ import frappe
 
 WORKSPACE = "J2C_ISTK"
 CARD_LABEL = "入库"
-LINK_LABEL = "入库单"
+LINK_LABEL = "入库"
 LINK_TARGET = "Stock In"
 
 

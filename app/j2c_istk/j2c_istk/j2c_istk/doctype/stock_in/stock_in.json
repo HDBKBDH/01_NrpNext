@@ -8,122 +8,159 @@
  "autoname": "naming_series:",
  "naming_rule": "By \"Naming Series\" field",
  "field_order": [
-  "sec_main",
-  "naming_series",
+  "sec_0",
   "category",
-  "stock_date",
+  "sec_1",
+  "stock_datetime",
+  "column_break_0",
+  "purchase_date",
+  "column_break_1",
+  "arrival_datetime",
+  "column_break_2",
   "warehouse",
-  "company",
-  "parent_item",
-  "sec_item",
+  "column_break_3",
+  "sec_2",
   "serial_numbers",
-  "cb_image",
+  "column_break_4",
   "product_images",
-  "cb_basic",
+  "column_break_5",
+  "sec_3",
   "manufacturer",
+  "column_break_6",
   "model",
+  "column_break_7",
   "specification",
-  "col_break_qty",
+  "column_break_8",
+  "sec_4",
   "qty",
+  "column_break_9",
   "uom",
-  "sec_amount",
+  "column_break_10",
+  "company",
+  "column_break_11",
+  "sec_5",
   "purchase_price_jpy",
+  "column_break_12",
   "shipping_jpy",
+  "column_break_13",
   "discount",
+  "column_break_14",
   "exchange_rate",
+  "column_break_15",
+  "sec_6",
   "total_cny",
+  "column_break_16",
   "reference_price_cny",
+  "column_break_17",
   "market_price_cny",
-  "sec_status",
+  "column_break_18",
+  "sec_7",
   "payment_method",
+  "column_break_19",
   "tax_refund_status",
+  "column_break_20",
   "logistics_status",
-  "sec_logistics",
+  "column_break_21",
+  "sec_8",
   "logistics_note",
-  "cb_customs",
+  "column_break_22",
   "customs_flag",
+  "column_break_23",
   "customs_declaration",
+  "column_break_24",
   "receipt_no",
-  "sec_total",
-  "stock_entry_ref",
+  "column_break_25",
+  "sec_9",
   "remarks",
+  "column_break_26",
+  "parent_item",
+  "column_break_27",
+  "stock_entry_ref",
+  "column_break_28",
+  "naming_series",
   "amended_from"
  ],
  "fields": [
   {
-   "fieldname": "sec_main",
-   "fieldtype": "Section Break",
-   "label": "基本信息"
-  },
-  {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "命名规则",
-   "options": "SIN-",
-   "default": "SIN-",
-   "reqd": 1,
-   "no_copy": 1,
-   "print_hide": 1
+   "fieldname": "sec_0",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "category",
    "fieldtype": "Select",
    "label": "类别",
-   "options": "散件\n整机\n拆分件",
+   "options": "散件\n整机",
    "default": "散件",
    "reqd": 1,
    "in_list_view": 1,
-   "in_standard_filter": 1,
-   "description": "决定下方表单样式：散件 / 整机 / 拆分件"
+   "in_standard_filter": 1
   },
   {
-   "fieldname": "stock_date",
+   "fieldname": "sec_1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "stock_datetime",
    "fieldtype": "Date",
-   "label": "入库日期",
+   "label": "入库时间",
+   "width": "",
+   "hide_seconds": 1
+  },
+  {
+   "fieldname": "column_break_0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "购买日期",
    "reqd": 1,
-   "default": "Today"
+   "default": "Today",
+   "width": ""
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "arrival_datetime",
+   "fieldtype": "Date",
+   "label": "到货时间",
+   "width": "",
+   "hide_seconds": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "仓库",
-   "options": "Warehouse",
    "reqd": 1,
    "in_list_view": 1,
-   "description": "选择后自动带出所属公司"
+   "width": "220px",
+   "default": "JP",
+   "description": "",
+   "options": "Warehouse"
   },
   {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "公司",
-   "options": "Company",
-   "read_only": 1,
-   "no_copy": 1,
-   "description": "由仓库自动带出，不可修改"
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   },
   {
-   "fieldname": "parent_item",
-   "fieldtype": "Link",
-   "label": "父商品编号",
-   "options": "Stock In",
-   "depends_on": "eval:doc.category == '拆分件'",
-   "description": "仅「拆分件」显示：关联所属整机的入库单"
-  },
-  {
-   "fieldname": "sec_item",
-   "fieldtype": "Section Break",
-   "label": "商品编号"
+   "fieldname": "sec_2",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "serial_numbers",
    "fieldtype": "Table",
    "label": "商品编号",
    "options": "Stock In Item",
-   "reqd": 1,
-   "description": "单个 = 1 行；对 = 2 行；可增删"
+   "reqd": 1
   },
   {
-   "fieldname": "cb_image",
+   "fieldname": "column_break_4",
    "fieldtype": "Column Break"
   },
   {
@@ -132,8 +169,12 @@
    "label": "产品图片"
   },
   {
-   "fieldname": "cb_basic",
+   "fieldname": "column_break_5",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_3",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "manufacturer",
@@ -141,19 +182,30 @@
    "label": "厂商"
   },
   {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "model",
    "fieldtype": "Data",
    "label": "型号"
   },
   {
-   "fieldname": "specification",
-   "fieldtype": "Data",
-   "label": "规格",
-   "description": "如 32GB / DDR4-3200 / 1TB"
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
   },
   {
-   "fieldname": "col_break_qty",
+   "fieldname": "specification",
+   "fieldtype": "Data",
+   "label": "规格"
+  },
+  {
+   "fieldname": "column_break_8",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_4",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "qty",
@@ -161,6 +213,10 @@
    "label": "数量",
    "default": "1",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "uom",
@@ -171,9 +227,25 @@
    "reqd": 1
   },
   {
-   "fieldname": "sec_amount",
-   "fieldtype": "Section Break",
-   "label": "金额"
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "公司",
+   "options": "Company",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_5",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "purchase_price_jpy",
@@ -183,11 +255,19 @@
    "reqd": 1
   },
   {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "shipping_jpy",
    "fieldtype": "Currency",
    "label": "运费",
    "currency": "JPY",
    "default": "0"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "discount",
@@ -197,12 +277,23 @@
    "default": "0"
   },
   {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "exchange_rate",
    "fieldtype": "Float",
    "label": "当日汇率",
    "reqd": 1,
-   "precision": "0.000000",
-   "description": "1 JPY = ? CNY"
+   "precision": "0.000000"
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_6",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "total_cny",
@@ -210,8 +301,11 @@
    "label": "CNY 成本",
    "currency": "CNY",
    "read_only": 1,
-   "no_copy": 1,
-   "description": "(采购价 + 运费 - 折扣JPY) × 当日汇率"
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_16",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "reference_price_cny",
@@ -220,20 +314,31 @@
    "currency": "CNY"
   },
   {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "market_price_cny",
    "fieldtype": "Currency",
    "label": "行情价",
    "currency": "CNY"
   },
   {
-   "fieldname": "sec_status",
-   "fieldtype": "Section Break",
-   "label": "状态"
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_7",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "payment_method",
    "fieldtype": "Data",
    "label": "支付方式"
+  },
+  {
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "tax_refund_status",
@@ -244,6 +349,10 @@
    "reqd": 1
   },
   {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "logistics_status",
    "fieldtype": "Select",
    "label": "物流状态",
@@ -252,9 +361,12 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "sec_logistics",
-   "fieldtype": "Section Break",
-   "label": "物流与单据"
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_8",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "logistics_note",
@@ -262,7 +374,7 @@
    "label": "物流状态说明"
   },
   {
-   "fieldname": "cb_customs",
+   "fieldname": "column_break_22",
    "fieldtype": "Column Break"
   },
   {
@@ -270,6 +382,10 @@
    "fieldtype": "Check",
    "label": "报关",
    "default": "0"
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "customs_declaration",
@@ -280,14 +396,44 @@
    "depends_on": "eval:doc.customs_flag"
   },
   {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "receipt_no",
    "fieldtype": "Data",
    "label": "收货单"
   },
   {
-   "fieldname": "sec_total",
-   "fieldtype": "Section Break",
-   "label": "汇总"
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sec_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "parent_item",
+   "fieldtype": "Link",
+   "label": "父商品编号",
+   "options": "Stock In",
+   "depends_on": "eval:doc.category == '拆分件'",
+   "description": "由整机入库单自动生成，不可手动填写",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_27",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "stock_entry_ref",
@@ -299,9 +445,19 @@
    "print_hide": 1
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "备注"
+   "fieldname": "column_break_28",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "命名规则",
+   "options": "SIN-",
+   "default": "SIN-",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "hidden": 1
   },
   {
    "fieldname": "amended_from",
@@ -345,7 +501,7 @@
    "share": 1
   }
  ],
- "sort_field": "stock_date",
+ "sort_field": "purchase_date",
  "sort_order": "DESC",
  "states": [],
  "title_field": "model",
