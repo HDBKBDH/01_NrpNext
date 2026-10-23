@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "serial_number",
+  "item",
+  "component_type",
+  "weight_ratio",
+  "allocated_cost",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Data",
+   "label": "序列号",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "型号",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "label": "类型",
+   "options": "CPU\nMEM\nGPU\nMB\nNVME\nPSU\nCHS",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "weight_ratio",
+   "fieldtype": "Float",
+   "label": "权重",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "allocated_cost",
+   "fieldtype": "Currency",
+   "label": "分摊成本",
+   "options": "CNY",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "J2C_ISTK",
+ "name": "Cost Allocation",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "istable": 1
+}

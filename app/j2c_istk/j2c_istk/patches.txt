@@ -1,0 +1,16 @@
+[pre_model_sync]
+# 数据 patch 必须在 post_model_sync，否则 DocType 表尚未创建
+[post_model_sync]
+# 顺序很重要：先建仓库，Trade Settings 的 Link 默认值才有效
+j2c_istk.patches.v1_0.create_custom_fields
+j2c_istk.patches.v1_0.create_item_groups
+j2c_istk.patches.v1_0.create_warehouses
+j2c_istk.patches.v1_0.create_trade_settings
+j2c_istk.patches.v1_0.set_role_permissions
+j2c_istk.patches.v1_0.rename_evidence_package_source
+j2c_istk.patches.v1_0.rename_and_cleanup_warehouses
+j2c_istk.patches.v1_0.create_trade_workspace
+j2c_istk.patches.v1_0.fix_warehouse_names
+j2c_istk.patches.v1_0.rollback_csrh_warehouse_names
+j2c_istk.patches.v1_0.rename_module_to_j2c_istk
+j2c_istk.patches.v1_0.rename_app_to_j2c_istk

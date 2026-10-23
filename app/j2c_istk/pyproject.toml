@@ -1,0 +1,22 @@
+[project]
+name = "j2c_istk"
+authors = [
+    { name = "Ice", email = "admin@motitoo.com" },
+]
+description = "日本中古采购-拆解-跨境销售全流程管理"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+# qrcode：标签二维码生成（Brother P710BT 标签用）
+# 必须声明为依赖，否则 container 重建后 pip install -e 会漏装
+dependencies = [
+    "qrcode>=7.4",
+    "Pillow>=10.0",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "j2c_istk"

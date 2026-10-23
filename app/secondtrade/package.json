@@ -1,9 +1,0 @@
-{
-  "name": "secondtrade",
-  "version": "0.1.0",
-  "description": "日本中古采购-拆解-跨境销售全流程管理",
-  "private": true,
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {}
-}

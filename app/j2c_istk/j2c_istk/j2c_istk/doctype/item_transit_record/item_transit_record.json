@@ -1,0 +1,183 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-22 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "serial_number",
+  "item",
+  "transit_type",
+  "carrier",
+  "tracking_number",
+  "column_break1",
+  "departure_date",
+  "arrival_date",
+  "departure_location",
+  "arrival_location",
+  "carrier_person",
+  "freight_cny",
+  "currency",
+  "amount_original",
+  "column_break2",
+  "status",
+  "evidence_files",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "命名规则",
+   "options": "TRANSIT-",
+   "default": "TRANSIT-",
+   "print_hide": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Link",
+   "label": "序列号",
+   "options": "Serial No",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "型号",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transit_type",
+   "fieldtype": "Select",
+   "label": "轨迹类型",
+   "options": "LocalShipping\nExportFreight\nReEntry\nSaleExport\nCNTransport\nPersonalCarry",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "carrier",
+   "fieldtype": "Data",
+   "label": "承运商"
+  },
+  {
+   "fieldname": "tracking_number",
+   "fieldtype": "Data",
+   "label": "运单号"
+  },
+  {
+   "fieldname": "column_break1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "departure_date",
+   "fieldtype": "Date",
+   "label": "出发日期"
+  },
+  {
+   "fieldname": "arrival_date",
+   "fieldtype": "Date",
+   "label": "到达日期"
+  },
+  {
+   "fieldname": "departure_location",
+   "fieldtype": "Data",
+   "label": "出发地"
+  },
+  {
+   "fieldname": "arrival_location",
+   "fieldtype": "Data",
+   "label": "到达地"
+  },
+  {
+   "fieldname": "carrier_person",
+   "fieldtype": "Data",
+   "label": "携带人"
+  },
+  {
+   "fieldname": "freight_cny",
+   "fieldtype": "Currency",
+   "label": "运费",
+   "options": "CNY"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "原币种",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "amount_original",
+   "fieldtype": "Float",
+   "label": "原币金额"
+  },
+  {
+   "fieldname": "column_break2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "状态",
+   "options": "InTransit\nArrived\nPendingCustoms\nCustomsCleared\nDelivered",
+   "default": "InTransit",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "evidence_files",
+   "fieldtype": "Attach",
+   "label": "凭证附件"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "修订自",
+   "options": "Item Transit Record",
+   "read_only": 1,
+   "print_hide": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-22 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "J2C_ISTK",
+ "name": "Item Transit Record",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "track_seen": 1,
+ "autoname": "naming_series:"
+}

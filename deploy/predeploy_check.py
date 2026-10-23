@@ -14,8 +14,12 @@ import os
 import re
 import sys
 
-APP = "secondtrade"
-DT_ROOT = f"{APP}/trade/doctype"
+# app 名 = 目录名 = Python 包名（小写）
+# module 名 = J2C_ISTK（显示/存储），目录用 scrub 后的 j2c_istk
+APP = "j2c_istk"
+MODULE = "J2C_ISTK"
+# cwd = app 根（app/j2c_istk/），模块目录在根下
+DT_ROOT = f"{APP}/{APP}/doctype"
 
 errors = []
 warnings = []
@@ -55,7 +59,7 @@ def check_json(path, name):
 
 def main():
     if not os.path.isdir(DT_ROOT):
-        print(f"✗ 找不到 {DT_ROOT}（请在 app/secondtrade 目录下运行）")
+        print(f"✗ 找不到 {DT_ROOT}（请在 app/j2c_istk 目录下运行）")
         return 1
 
     doctypes = [d for d in sorted(os.listdir(DT_ROOT))
@@ -170,7 +174,7 @@ def main():
         import re as _re
         m = _re.search(r'"logo":\s*"(/assets/[^"]+)"', hsrc)
         if m:
-            logo_rel = m.group(1).replace("/assets/secondtrade/", "")
+            logo_rel = m.group(1).replace(f"/assets/{APP}/", "")
             logo_path = f"{APP}/public/{logo_rel}"
             if not os.path.exists(logo_path):
                 errors.append(f"[AllApps] logo 文件不存在: {logo_path}")
@@ -186,11 +190,12 @@ def main():
     # 规则是 <app>/dock/<name>.json，跟 import 规则不一致
     # （frappe 自己也对不上，靠 standard=1 豁免）。
     # 所以文件必须放在 import 规则的位置，否则 migrate 不会导入。
-    dock_json = f"{APP}/dock/secondtrade/secondtrade.json"
+    # Dock 的 name/app 用 app 名（小写），文件名也用 app 名
+    dock_json = f"{APP}/dock/{APP}/{APP}.json"
     if os.path.exists(dock_json):
         try:
             d = json.load(open(dock_json))
-            if d.get("app") != "secondtrade":
+            if d.get("app") != APP:
                 errors.append(f"[Dock] app 字段错误: {d.get('app')}")
             if not d.get("name"):
                 # import_file.py:123 无条件读 doc["name"]，缺了直接 KeyError
@@ -233,7 +238,7 @@ def main():
     if not ws_files:
         warnings.append(
             "[Workspace] 没有找到 workspace JSON——"
-            "Desk 里 trade 模块会完全隐形。"
+            "Desk 里模块会完全隐形。"
             "文件必须放在 <app>/**/workspace/**/*.json"
         )
     for wf in ws_files:
@@ -319,8 +324,8 @@ def main():
             if not check_syntax(fpath, rel):
                 continue
 
-    # 同样的检查覆盖 trade/ 下的所有 controller
-    trade_dir = f"{APP}/trade"
+    # 同样的检查覆盖模块目录下的所有 controller
+    trade_dir = f"{APP}/{APP}"
     if os.path.isdir(trade_dir):
         for root, _dirs, files in os.walk(trade_dir):
             for fn in files:
