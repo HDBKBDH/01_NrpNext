@@ -1,5 +1,14 @@
 """修正 Warehouse.name 与 warehouse_name 不一致
 
+【已废弃 —— 2026-10-23 之前的历史 patch】
+现在的仓库 name 规则：
+  - name = "<warehouse_name> - <Company.abbr>"（Frappe 标准）
+  - ISOTENKAI 的 abbr 是 ISTK，所以是 "JP - ISTK"
+  - 本 patch 是早期为了统一格式写的，逻辑已过时
+保留文件仅为历史参考，不再有实际作用。
+
+
+
 起因：早期 patch 用了 db.set_value 改 warehouse_name，
 但 Warehouse.name 是主键不会被重算，导致显示还是旧名。
 

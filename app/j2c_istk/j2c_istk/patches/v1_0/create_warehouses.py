@@ -1,42 +1,69 @@
 """重建仓库体系
 
-v16的 Warehouse.name 由 warehouse_name + company 自动组成（"名称 - 公司"），
+v16 的 Warehouse.name 由 warehouse_name + company 自动组成（"名称 - 公司"），
 所以存在性检查必须用 warehouse_name 字段，不能用 name。
 
-CSRH 公司（大陆）：
-    所有仓库 - CSRH
-           ├ HK-01/02/03 香港中转仓
-      ├ SZ-01       深圳中转仓
-      ├ BJ-CSRH     北京销售仓
-      ├ BJ-SY       北京公司留用（自用）
-      └ GOOFISH / TIKTOK  虚拟销售渠道（库存恒为 0）
+Company 拆分（用户确认）：每个仓库群组一个独立 Company。
+仓库名暂不改（都是占位名，等真实名称确定后再改）。
 
-ISOTENKAI 公司（日本）：
-    所有仓库 - ISTK
-      ├ JP              日本物流仓
-      └ JP-LOCAL        日本公司留用（自用）
+  CSRH（大陆主体）      所有仓库 - CSRH
+      └ BJ-CSRH            北京销售仓
+
+  SY                    所有仓库 - SY
+      └ BJ-SY              北京公司留用（自用）
+
+  HK（香港）            所有仓库 - HK
+      └ HK-01/02/03        香港中转仓
+
+  SZ（深圳）            所有仓库 - SZ
+      └ SZ-01              深圳中转仓
+
+  GF（闲鱼）            所有仓库 - GF
+      └ GF01               虚拟销售渠道（库存恒为 0）
+
+  TT（抖音）            所有仓库 - TT
+      └ TT01               虚拟销售渠道（库存恒为 0）
+
+  ISOTENKAI（日本）      所有仓库
+      ├ JP                  日本物流仓
+      └ JP-LOCAL            日本公司留用（自用）
+
+币种全部 CNY（记账统一，汇率换算）。
 """
 
 import frappe
 
 CSRH = "CSRH"
+SY = "SY"
+HK = "HK"
+SZ = "SZ"
+GF = "GF"
+TT = "TT"
 ISO = "ISOTENKAI"
 
 TREE = [
     # (warehouse_name, parent_name, company, type, country, selfuse, virtual, state)
-    ("HK-01", "所有仓库 - CSRH", CSRH, "中转仓", "Hong Kong", 0, 0, "InTransit"),
-    ("HK-02", "所有仓库 - CSRH", CSRH, "中转仓", "Hong Kong", 0, 0, "InTransit"),
-    ("HK-03", "所有仓库 - CSRH", CSRH, "中转仓", "Hong Kong", 0, 0, "InTransit"),
-    ("SZ-01", "所有仓库 - CSRH", CSRH, "中转仓", "China", 0, 0, "InTransit"),
     ("BJ-CSRH", "所有仓库 - CSRH", CSRH, "销售仓", "China", 0, 0, "Sellable"),
-    ("BJ-SY", "所有仓库 - CSRH", CSRH, "自用仓", "China", 1, 0, "SelfUse"),
-    ("GOOFISH", "所有仓库 - CSRH", CSRH, "虚拟仓", "China", 0, 1, "Sellable"),
-    ("TIKTOK", "所有仓库 - CSRH", CSRH, "虚拟仓", "China", 0, 1, "Sellable"),
-    ("JP", "所有仓库 - ISTK", ISO, "物流仓", "Japan", 0, 0, "InTransit"),
-    ("JP-LOCAL", "所有仓库 - ISTK", ISO, "自用仓", "Japan", 1, 0, "SelfUse"),
+    ("BJ-SY", "所有仓库 - SY", SY, "自用仓", "China", 1, 0, "SelfUse"),
+    ("HK-01", "所有仓库 - HK", HK, "中转仓", "Hong Kong", 0, 0, "InTransit"),
+    ("HK-02", "所有仓库 - HK", HK, "中转仓", "Hong Kong", 0, 0, "InTransit"),
+    ("HK-03", "所有仓库 - HK", HK, "中转仓", "Hong Kong", 0, 0, "InTransit"),
+    ("SZ-01", "所有仓库 - SZ", SZ, "中转仓", "China", 0, 0, "InTransit"),
+    ("GF01", "所有仓库 - GF", GF, "虚拟仓", "China", 0, 1, "Sellable"),
+    ("TT01", "所有仓库 - TT", TT, "虚拟仓", "China", 0, 1, "Sellable"),
+    ("JP", "所有仓库", ISO, "物流仓", "Japan", 0, 0, "InTransit"),
+    ("JP-LOCAL", "所有仓库", ISO, "自用仓", "Japan", 1, 0, "SelfUse"),
 ]
 
-ROOTS = [("所有仓库 - CSRH", CSRH), ("所有仓库 - ISTK", ISO)]
+ROOTS = [
+    ("所有仓库 - CSRH", CSRH),
+    ("所有仓库 - SY", SY),
+    ("所有仓库 - HK", HK),
+    ("所有仓库 - SZ", SZ),
+    ("所有仓库 - GF", GF),
+    ("所有仓库 - TT", TT),
+    ("所有仓库", ISO),
+]
 
 
 def _exists(warehouse_name, company):

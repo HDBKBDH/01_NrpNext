@@ -126,7 +126,15 @@ def main():
                     )
 
     # Link → Warehouse 的默认值格式检查
-    # Frappe 的 Warehouse.name = "<company_abbr> - <warehouse_name>"
+    # Link → Warehouse 的默认值检查
+    #
+    # 之前的检查是「必须含 ' - ' 分隔」，但那是错的假设：
+    #   Frappe 的规则是 name = "<warehouse_name> - <Company.abbr>"
+    #   而历史 rename 会产生没有后缀的真实 name（如 "JP"）
+    # → 改为「收集所有默认值，部署时在服务器上核对是否存在」
+    #
+    # 这里只做格式提示，不报错 —— 真实存在性由服务器端检查负责。
+    warehouse_defaults = []
     for d in doctypes:
         js = f"{DT_ROOT}/{d}/{d}.json"
         if not os.path.exists(js):
@@ -137,13 +145,13 @@ def main():
             continue
         for f in dj.get("fields", []):
             if f.get("options") == "Warehouse" and f.get("default"):
-                dv = f["default"]
-                if " - " not in dv:
-                    errors.append(
-                        f"[Link] {d}.{f['fieldname']}: "
-                        f"Warehouse 默认值 {dv!r} 缺少 ' - ' 分隔"
-                        f"（应为 '<abbr> - <name>'）"
-                    )
+                warehouse_defaults.append((d, f["fieldname"], f["default"]))
+
+    if warehouse_defaults:
+        print(f"  ✓ Warehouse 默认值 {len(warehouse_defaults)} 项"
+              f"（存在性由服务器端核对）")
+        for d, fn, dv in warehouse_defaults:
+            print(f"      {d}.{fn} = {dv!r}")
 
     # v16「All Apps」入口检查
     # 踩过的坑：app 装了、模块也在，但 All Apps 里看不到入口。

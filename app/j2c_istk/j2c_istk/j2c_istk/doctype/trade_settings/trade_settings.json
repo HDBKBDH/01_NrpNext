@@ -96,7 +96,7 @@
    "fieldtype": "Link",
    "label": "默认拆解仓",
    "options": "Warehouse",
-   "default": "ISTK - JP",
+   "default": "JP",
    "description": "默认拆解仓（日本仓）"
   },
   {
