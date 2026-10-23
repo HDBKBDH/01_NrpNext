@@ -119,6 +119,103 @@ def check_removed_fields():
     return bad
 
 
+def check_duplicate_docfields():
+    """DocType 的 fieldname 不能重复。
+
+    改名（如 category→part_type）时如果没删旧行，数据库会出现两条同名字段，
+    症状：meta 里同一字段显示两次，idx 错乱，页面布局乱。
+    """
+    import json
+    import os
+    from collections import Counter
+    bad = []
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app")
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ("__pycache__", "node_modules")]
+        for fn in filenames:
+            if not fn.endswith(".json"):
+                continue
+            jp = os.path.join(dirpath, fn)
+            try:
+                d = json.load(open(jp, encoding="utf-8"))
+            except Exception:
+                continue
+            if not isinstance(d, dict):
+                continue
+            names = [f.get("fieldname") for f in d.get("fields", [])]
+            dup = [n for n, c in Counter(names).items() if c > 1 and n]
+            if dup:
+                bad.append(f"{d.get('name') or fn}: 重复 {dup}")
+    return bad
+
+
+def check_field_order_consistency():
+    """DocType JSON 的 fields 数组与 field_order 必须完全一致。
+
+    migrate 只按 field_order 写 DocField；fields 里有但 field_order 没有的字段
+    永远进不了数据库。症状：JSON 里明明有，服务器 DocField 表里查不到。
+    """
+    import json
+    import os
+    bad = []
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app")
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ("__pycache__", "node_modules")]
+        for fn in filenames:
+            if not fn.endswith(".json"):
+                continue
+            jp = os.path.join(dirpath, fn)
+            try:
+                d = json.load(open(jp, encoding="utf-8"))
+            except Exception:
+                continue
+            if not isinstance(d, dict):
+                continue
+            names = [f.get("fieldname") for f in d.get("fields", [])]
+            order = d.get("field_order")
+            if not order:
+                continue
+            only_fields = [n for n in names if n not in order]
+            only_order = [n for n in order if n not in names]
+            if only_fields or only_order:
+                bad.append(
+                    f"{d.get('name') or os.path.basename(jp)}: "
+                    f"仅在fields={only_fields} 仅在field_order={only_order}"
+                )
+    return bad
+
+
+def check_in_list_view():
+    """istable 子表：可见列必须有 in_list_view=1，否则 grid 不渲染该列。
+
+    症状：DocField 表里字段存在、idx 正确、label 正确，但页面上看不到这一列。
+    原因：Frappe grid 只渲染 docfield.in_list_view=1 的列。
+    教训：重建 fields 数组时容易丢这个标记（本项目踩过两次）。
+    """
+    import json
+    import os
+    bad = []
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app")
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ("__pycache__", "node_modules")]
+        for fn in filenames:
+            if not fn.endswith(".json"):
+                continue
+            jp = os.path.join(dirpath, fn)
+            try:
+                d = json.load(open(jp, encoding="utf-8"))
+            except Exception:
+                continue
+            if not isinstance(d, dict) or not d.get("istable"):
+                continue
+            for f in d.get("fields", []):
+                if f.get("hidden"):
+                    continue
+                if not f.get("in_list_view"):
+                    bad.append(f"{d.get('name')}.{f.get('fieldname')} ({f.get('label')})")
+    return bad
+
+
 def main():
     if not os.path.isdir(DT_ROOT):
         print(f"✗ 找不到 {DT_ROOT}（请在 app/j2c_istk 目录下运行）")
@@ -444,6 +541,22 @@ def main():
         print(f"✗ {len(errors)} 个错误：\n")
         for e in errors:
             print(f"  {e}")
+    # ---- 全局检查：三个函数都没接进 main，这里补上 ----
+    for label, fn in (
+        ("v16 已移除的字段", check_removed_fields),
+        ("v16 已移除的 JS API", check_removed_js_apis),
+        ("子表 in_list_view", check_in_list_view),
+        ("fields/field_order 一致性", check_field_order_consistency),
+        ("DocField 重复", check_duplicate_docfields),
+    ):
+        try:
+            bad = fn()
+        except Exception as exc:
+            errors.append(f"[{label}] 检查器自身异常: {exc}")
+            continue
+        if bad:
+            errors.append(f"[{label}] {len(bad)} 个:\n      " + "\n      ".join(bad))
+
     if warnings:
         print(f"\n⚠ {len(warnings)} 个警告：\n")
         for w in warnings:

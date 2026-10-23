@@ -6,7 +6,27 @@
  "engine": "InnoDB",
  "field_order": [
   "serial_no",
-  "item_code"
+  "cbc_0",
+  "category",
+  "cbc_1",
+  "purchase_price_jpy",
+  "cbc_2",
+  "shipping_jpy",
+  "cbc_3",
+  "discount",
+  "cbc_4",
+  "total_jpy",
+  "cbc_5",
+  "total_cny",
+  "cbc_6",
+  "exchange_rate",
+  "cbc_7",
+  "reference_price_cny",
+  "cbc_8",
+  "market_price_cny",
+  "cbc_9",
+  "profit_cny",
+  "parent_item"
  ],
  "fields": [
   {
@@ -14,21 +34,164 @@
    "fieldtype": "Data",
    "label": "商品编号",
    "reqd": 1,
-   "columns": 3,
+   "width": 115,
    "in_list_view": 1,
-   "in_standard_filter": 1,
-   "description": "手输；格式 YYMMDD-NN；输入框会提示最近录入过的编号"
+   "description": ""
   },
   {
-   "fieldname": "item_code",
-   "fieldtype": "Link",
-   "label": "生成 Item",
-   "options": "Item",
+   "fieldname": "cbc_0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "类别",
+   "options": "散件\n整机\n拆解件",
+   "default": "散件",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "width": 65
+  },
+  {
+   "fieldname": "cbc_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_price_jpy",
+   "fieldtype": "Currency",
+   "label": "采购价JPY",
+   "currency": "JPY",
+   "reqd": 1,
+   "in_list_view": 1,
+   "width": 95,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shipping_jpy",
+   "fieldtype": "Currency",
+   "label": "运费JPY",
+   "currency": "JPY",
+   "default": "0",
+   "in_list_view": 1,
+   "align": "right",
+   "width": 80,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "discount",
+   "fieldtype": "Currency",
+   "label": "折扣JPY",
+   "currency": "JPY",
+   "default": "0",
+   "in_list_view": 1,
+   "align": "right",
+   "width": 80,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_jpy",
+   "fieldtype": "Currency",
+   "label": "合计JPY",
+   "currency": "JPY",
+   "width": 90,
    "read_only": 1,
    "no_copy": 1,
-   "columns": 2,
+   "description": "",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cbc_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_cny",
+   "fieldtype": "Currency",
+   "label": "合计CNY",
+   "currency": "CNY",
+   "read_only": 1,
    "in_list_view": 1,
-   "description": "提交时自动创建的 ERPNext Item"
+   "width": 95,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "汇率",
+   "width": 58,
+   "precision": "0.000000",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_price_cny",
+   "fieldtype": "Currency",
+   "label": "参考价CNY",
+   "currency": "CNY",
+   "width": 95,
+   "in_list_view": 1,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "market_price_cny",
+   "fieldtype": "Currency",
+   "label": "行情价CNY",
+   "currency": "CNY",
+   "width": 95,
+   "in_list_view": 1,
+   "description": ""
+  },
+  {
+   "fieldname": "cbc_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "profit_cny",
+   "fieldtype": "Currency",
+   "label": "盈亏CNY",
+   "currency": "CNY",
+   "width": 90,
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "description": ""
+  },
+  {
+   "fieldname": "parent_item",
+   "fieldtype": "Data",
+   "label": "父入库单",
+   "width": "130px",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1,
+   "print_hide": 1,
+   "description": "",
+   "in_list_view": 0
   }
  ],
  "istable": 1,

@@ -1,31 +1,267 @@
-/* 入库单 —— 表单样式调整
-   1. 收窄 Select 控件（Frappe v16 的 layout.js 不读 DocField.width）
-   2. 隐藏 Date/Datetime 下方的时区提示（"Asia/Shanghai"）
-   CSS 必须放 doctype/<name>/<name>.css —— v16 已移除 doctype_css hook。 */
+/* 入库单 —— 表单样式
+   1. 子表（商品编号）撑满整行。
+   2. 收窄下拉控件（类别/仓库）。
+   3. 隐藏 Date 控件下方的时区提示。
 
-/* ---- 收窄下拉 ---- */
-[data-fieldname="category"],
-[data-fieldname="warehouse"] {
+   CSS 必须放 doctype/<name>/<name>.css —— v16 已移除 doctype_css hook。
+   选择器必须锚定 .form-layout，否则会连子表列头一起压扁。 */
+
+/* ---- Section 1 布局说明 ----
+   Frappe v16 给每个字段的栅格 class是 col-sm-20（scss/desk/form.scss:623）：
+       .form-column.col-sm-20 { flex: 0 0 20%; max-width: 20%; }
+   即每列 20%，一行正好 5 个字段 —— 天然满足「5 个字段同一行」。
+   不要覆盖这个 class，曾用 col-sm-2 (16.666%) 干预导致布局错乱。
+*/
+
+/* ---- 子表独占整行 ----
+   Frappe 的 Column 是 flex 容器（col-sm-20 = 20%），容器内字段纵向堆叠。
+   子表和「厂商|型号|规格|数量|单位」在同一 Section，
+   子表所在的那个 form-column 需要 100% 宽，其余 5 个 Column 共享剩余空间。
+
+   这里让含 serial_numbers 的 form-column 撑满，
+   后续 Column 用 flex:1 均分剩余宽度。 */
+/* 只对「含子表的那个 Section」生效，不影响其他 Section 的换行 */
+.form-layout .form-section:has([data-fieldname="serial_numbers"]) {
+	max-width: 100% !important;
+}
+
+.form-layout .form-section:has([data-fieldname="serial_numbers"]) .form-column {
+	flex: 1 1 100% !important;
+	width: 100% !important;
+	max-width: 100% !important;
+}
+
+.form-layout .form-column:has([data-fieldname="serial_numbers"]) .form-grid-container,
+.form-layout .form-column:has([data-fieldname="serial_numbers"]) .form-grid {
+	width: 100% !important;
+	max-width: none !important;
+	overflow-x: auto !important;
+}
+
+/* Column 宽度交给 Frappe 原生 col-sm-20（每列 20%，一行 5 列）。
+   不要覆盖 flex —— 实测覆盖后换行计算会错乱。 */
+
+/* ---- 收窄下拉（仅主表） ---- */
+.form-layout .frappe-control[data-fieldname="warehouse"] {
 	max-width: 120px !important;
 }
 
-[data-fieldname="category"] .control-input,
-[data-fieldname="category"] .select-input,
-[data-fieldname="category"] input,
-[data-fieldname="warehouse"] .control-input,
-[data-fieldname="warehouse"] .select-input,
-[data-fieldname="warehouse"] input {
+.form-layout .frappe-control[data-fieldname="warehouse"] input {
 	max-width: 120px !important;
 	width: 120px !important;
 }
 
-/* ---- 隐藏时区提示 ----
-   Frappe 的 Date 控件在输入框下方渲染 .help-box 显示系统时区，
-   这里对所有日期字段隐藏。 */
-[data-fieldname$="date"] .help-box,
-[data-fieldname$="datetime"] .help-box,
-[data-fieldname="stock_datetime"] .help-box,
-[data-fieldname="arrival_datetime"] .help-box,
-[data-fieldname="purchase_date"] .help-box {
+/* ---- 子表列保护：子表列头也是 [data-fieldname="xxx"]，
+   主表样式不能作用到子表（曾导致「分类」label 竖排）。----
+   子表列一律用.grid-row 限定，不与主表选择器混用。 */
+
+/* ---- 隐藏时区提示（仅主表） ---- */
+.form-layout .frappe-control[data-fieldname="stock_datetime"] .help-box,
+.form-layout .frappe-control[data-fieldname="arrival_datetime"] .help-box,
+.form-layout .frappe-control[data-fieldname="purchase_date"] .help-box {
 	display: none !important;
+}
+
+/* ---- 子表行操作图标（＋加行 / －删行）----
+   位置：紧跟Frappe 内置的行号列（「编号」/ No.）右侧，独立占一格。
+
+   注意：
+   - 「编号」列是 Frappe 内置的 row-number 列（grid_row.js:243
+     msgctxt "Title of the 'row number' column" → "编号"），
+     不是 name 列，无法通过配置去掉，必须保留。
+   - 图标容器必须用 !important 固定宽度，否则 flex 会压缩它
+     导致和行号重叠、整行列错位。 */
+.form-layout .grid-row .data-row > .row-actions {
+	flex: 0 0 46px !important;
+	width: 46px !important;
+	max-width: 46px !important;
+	min-width: 46px !important;
+	display: flex !important;
+	gap: 0;
+	align-items: center;
+	justify-content: center;
+	opacity: 0.35;
+	transition: opacity 0.15s;
+	padding: 0;
+}
+
+.form-layout .grid-row:hover .data-row > .row-actions {
+	opacity: 1;
+}
+
+.form-layout .row-actions .row-act-add,
+.form-layout .row-actions .row-act-del {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 4px;
+	color: var(--text-color);
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.form-layout .row-actions .row-act-add:hover {
+	background: var(--green-50);
+	color: var(--green-500);
+}
+
+.form-layout .row-actions .row-act-del:hover {
+	background: var(--red-50);
+	color: var(--red-500);
+}
+
+/* 表头：保留列宽（保证与数据列对齐），但内容不可见 */
+.form-layout .grid-heading-row .data-row > .row-actions {
+	flex: 0 0 46px !important;
+	width: 46px !important;
+	max-width: 46px !important;
+	min-width: 46px !important;
+	overflow: hidden;
+	opacity: 1;
+}
+
+/* ---- 隐藏 Frappe 行号列（「编号」/ No.）----
+   源码 grid_row.js:254 生成的 .row-index，它是 sortable-handle
+   （拖拽排序手柄）。隐藏后失去拖拽排序，用 ＋ 在下方插入新行代替。
+   .row-check（勾选框）保留 —— 它用于批量操作。 */
+.form-layout .grid-row .data-row > .row-index,
+.form-layout .grid-heading-row .data-row > .row-index {
+	display: none !important;
+}
+
+/* ---- 行操作列右侧隔线 ----
+   Frappe 的列默认只有左侧/底部边框，最后一列右边没有线。 */
+.form-layout .grid-row .data-row > .row-actions {
+	border-right: 1px solid var(--border-color) !important;
+}
+
+.form-layout .grid-heading-row .data-row > .row-actions {
+	border-right: 1px solid var(--border-color) !important;
+}
+
+/* ---- 数量 / 单位 收窄 ---- */
+.form-layout .frappe-control[data-fieldname="qty"] {
+	max-width: 70px !important;
+}
+
+.form-layout .frappe-control[data-fieldname="qty"] input {
+	max-width: 70px !important;
+	width: 70px !important;
+}
+
+.form-layout .frappe-control[data-fieldname="uom"] {
+	max-width: 85px !important;
+}
+
+.form-layout .frappe-control[data-fieldname="uom"] input,
+.form-layout .frappe-control[data-fieldname="uom"] .select-input {
+	max-width: 85px !important;
+	width: 85px !important;
+}
+
+
+.form-layout .frappe-control[data-fieldname="part_type"] input,
+.form-layout .frappe-control[data-fieldname="part_type"] .select-input {
+	max-width: 110px !important;
+	width: 110px !important;
+}
+
+/* ---- 类型 下拉收窄（主表，整单一份）---- */
+.form-layout .frappe-control[data-fieldname="part_type"] {
+	max-width: 130px !important;
+}
+
+.form-layout .frappe-control[data-fieldname="part_type"] input,
+.form-layout .frappe-control[data-fieldname="part_type"] .select-input {
+	max-width: 130px !important;
+	width: 130px !important;
+}
+
+/* ============================================================
+   Section 布局修复 —— 让所有字段统一 20% 宽，靠 flex-wrap 自动换行
+
+   Frappe v16 的缺陷（column.js:41 resize_all_columns）：
+       let columns = visible_columns.length;   // Section 内 Column 总数
+       let colspan = cint(12 / columns);       // 平均分配
+       if (columns == 5) colspan = 20;         // 只有恰好 5 个才正确
+   → 2 个 → col-sm-6（50%，太宽）／4 个 → col-sm-3（25%）／11 个 → col-sm-1（8%，挤一行）
+
+   Frappe 的设计意图是「每列 20%，一行 5 个，靠 .section-body 的
+   flex-wrap: wrap 自动换行」（form.scss:73-77），但 resize_all_columns
+   把它实现成了「按总数平均分」。
+
+   修复：覆盖 col-sm-* 为固定 20%，换行交回 flex-wrap。
+   ============================================================ */
+
+/* 子表所在 Section 的列宽由下面那条 100% 规则覆盖（顺序在后，优先级更高） */
+
+/* ============================================================
+   去掉 Section 之间的横线 —— 三行合并成一个视觉块
+
+   sec_info_a（厂商行）/ sec_info_b（型号行）/ sec_info_c（日期行）
+   是三个 Section，但视觉上要像一整块，只靠 flex-wrap 分行。
+
+   Section 底边来源：scss/desk/form.scss:131
+       .form-section.card-section { border-bottom: 1px solid var(--border-color); }
+
+   只去掉 B、C 两组的底边（A 组上方的线保留，用于分隔子表格），
+   以及日期行下方（分隔产品图片）的线也保留。
+   ============================================================ */
+
+
+/* 去掉分组后残留的额外 padding，让三行间距均匀 */
+
+
+/* 但「产品图片」那组的顶部要恢复分隔线（它是新的一整块） */
+.form-layout .form-section:has([data-fieldname="product_images"]) {
+	border-top: 1px solid var(--border-color) !important;
+	padding-top: var(--padding-sm) !important;
+}
+
+/* ============================================================
+   列宽交给 Frappe 原生
+
+   column.js:resize_all_columns() 按 Section 内 Column 总数算宽度，
+   我们把三行分成 5 / 2 / 4 个 Column，正好得到：
+       5 个 → col-sm-20（20%）  厂商行
+       2 个 → col-sm-6 （50%）  型号|规格 各半行
+       4 个 → col-sm-3 （25%）  日期行
+   都是我们想要的，所以不要覆盖 —— 之前用统一 20% 会把型号行的
+   50% 压成 20%，导致没有均分。
+   ============================================================ */
+
+/* ============================================================
+   去掉「型号行」「日期行」上方的 Section 分隔线
+
+   三行是三个独立 Section（为了各自算对列宽），
+   但视觉上要像一整块，用 CSS 去掉中间的 border-bottom。
+
+   依据：scss/desk/form.scss:131
+       .form-section.card-section { border-bottom: 1px solid var(--border-color); }
+
+   保留：厂商行上方的线（分隔子表格）、日期行下方的线（分隔产品图片）
+   ============================================================ */
+
+/* 去掉 Section 切换产生的额外上边距，让三行间距均匀 */
+
+
+/* ============================================================
+   放开页面宽度限制
+   ---------------------------------------------------------------------------
+   Frappe 全局：body:not(.full-width) .std-form-layout .section-body {
+       max-width: var(--page-max-width);   /* 默认 900px */
+   }
+   → 子表 11 列（合计 958px）放不下 → 横向滚动条。
+
+   Frappe 的官方开关是给 body 加 .full-width 类。
+   这里用 CSS 把 Stock In 页面的 body 标记为 full-width，
+   只影响本页，不影响其他表单。
+
+   注意：不能用 .form-section { max-width: 100% } 来覆盖 ——
+   Frappe 的限制加在 .section-body 上，是不同的元素。
+   ============================================================ */
+body:not(.full-width) .std-form-layout .form-page .form-section .section-body {
+	max-width: 100% !important;
 }

@@ -20,6 +20,15 @@ required_apps = ["frappe/erpnext"]
 # v16：必须显式声明 doctype_js / doctype_css，
 # 否则 desk 不会加载 app 里的 JS，前端脚本全部失效。
 # 注意路径格式：相对 app 包根（j2c_istk/），即 "public/js/xxx.js"
+# 全局表单布局补丁（Frappe v16 的 Section 列宽缺陷修正）
+# 详见 public/js/layout_patch.bundle.js 顶部说明。
+# 注意：这里必须写「裸文件名」（如 Frappe 自己的 "desk.bundle.js"），
+#      esbuild 会自动打包并在 assets.json 注册；
+#      写成 "public/js/xxx.js" 会被当成静态资源直接引用 → 浏览器 MIME 报错。
+app_include_js = [
+    "layout_patch.bundle.js",
+]
+
 doctype_js = {
     "Label Print": "public/js/label_print.bundle.js",
     "Customs Declaration": "public/js/customs_declaration.bundle.js",
