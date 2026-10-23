@@ -16,3 +16,4 @@ j2c_istk.patches.v1_0.rename_module_to_j2c_istk
 j2c_istk.patches.v1_0.rename_app_to_j2c_istk
 j2c_istk.patches.v1_0.isolate_item_groups
 j2c_istk.patches.v1_0.split_companies
+j2c_istk.patches.v1_0.add_company_default_warehouse_column

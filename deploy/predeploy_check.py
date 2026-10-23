@@ -153,6 +153,26 @@ def main():
         for d, fn, dv in warehouse_defaults:
             print(f"      {d}.{fn} = {dv!r}")
 
+    # Custom Field 检查
+    #
+    # 踩过的坑：v16 的 Custom Field 不接受 fieldtype="Virtual"
+    #   （报错 Field Type cannot be "Virtual"）
+    #   最接近的合法类型是 "Read Only"（但需要真实存储，会重复数据）
+    # → 需要"只读显示标准字段"的场景，用 Property Setter 改
+    #   标准字段的 in_list_view / in_standard_filter（ERPNext 官方用法）
+    cf_dir = f"{APP}/patches/v1_0"
+    for f in sorted(os.listdir(cf_dir)):
+        if not f.endswith(".py"):
+            continue
+        src = open(f"{cf_dir}/{f}").read()
+        if '"fieldtype": "Virtual"' in src:
+            errors.append(
+                f"[CustomField] {f}: fieldtype='Virtual' 不是合法类型"
+                "（v16 会报 Field Type cannot be \"Virtual\"）"
+                " → 改用 Property Setter 改标准字段的显示属性"
+            )
+    print("  ✓ Custom Field 字段类型合法")
+
     # v16「All Apps」入口检查
     # 踩过的坑：app 装了、模块也在，但 All Apps 里看不到入口。
     # 根因：v16 只显示声明了 add_to_apps_screen hook 的 app，
