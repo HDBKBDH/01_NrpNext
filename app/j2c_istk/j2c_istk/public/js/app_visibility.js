@@ -1,16 +1,16 @@
 /**
- * 隐藏不需要的 App 入口
+ * 隐藏不需要的 App 入口（ERPNext / Framework）
  *
  * 背景：Frappe v16 的 All Apps 页面由 add_to_apps_screen hook 驱动，
  * 没有 site 级的"隐藏某个 app"开关：
  *   frappe.permissions.check_app_permission 要求 System Manager 角色
  *   erpnext.check_app_permission 对 Administrator 恒返回 True
- * 都改不了。所以只能在展示层处理。
+ * 都改不了，所以只能在展示层处理。
  *
  * 时机踩过的坑：
- *   frappe.ready() 在 desk 页面可能已经触发过了（boot 早就完成），
- *   导致回调不执行 → 隐藏失效。
- *   所以改成：立刻执行一次 + ready 再执行一次 + 监听 DOM 变化。
+ *   本文件在 erpnext.bundle.js 之后加载，但 frappe.boot 可能还没就绪；
+ *   等 boot 就绪后 frappe.ready 又可能已经触发过了（回调不跑）。
+ *   → 三个兜底：立即执行 + 轮询等 boot + MutationObserver。
  *
  * 影响范围：仅隐藏 All Apps 页面的入口图标。
  * DocType、路由、权限全部照常可用（直接输 URL 或用搜索都能进）。
@@ -22,64 +22,63 @@
 const HIDDEN_APPS = ["erpnext", "frappe"];
 
 function hideHiddenApps() {
-	const app_data = (window.frappe && frappe.boot && frappe.boot.app_data) || [];
+	if (!window.frappe || !frappe.boot || !frappe.boot.app_data) {
+		return false;
+	}
 
-	for (const app of app_data) {
+	for (const app of frappe.boot.app_data) {
 		if (HIDDEN_APPS.includes(app.app_name)) {
 			app.on_apps_screen = false;
 		}
 	}
+	return true;
 }
 
-// 立刻执行（boot 可能已完成）
-hideHiddenApps();
-
-// frappe.ready 兜底
-if (window.frappe) {
-	frappe.ready(hideHiddenApps);
-	frappe.after_ajax && frappe.after_ajax(hideHiddenApps);
-}
-
-// All Apps 页面渲染后，DOM 里可能已存在图标 → 直接藏 DOM
 function hideIconsInDom() {
-	const titles = ["ERPNext", "Framework"];
-	for (const t of titles) {
-		const nodes = document.querySelectorAll(
-			`.desktop-icon, .app-icon, .icon-container`
-		);
-		for (const n of nodes) {
-			const cap = n.closest(".desktop-icon") || n.parentElement;
-			if (!cap) continue;
-			const text = (cap.textContent || "").trim();
-			const img = cap.querySelector("img");
-			const src = img ? img.getAttribute("src") || "" : "";
-			if (
-				text.includes(t) ||
-				src.includes("/erpnext/") ||
-				src.includes("/frappe/")
-			) {
-				cap.style.display = "none";
-			}
+	for (const n of document.querySelectorAll(".desktop-icon, .app-icon, .icon-container")) {
+		const cap = n.closest(".desktop-icon") || n.parentElement;
+		if (!cap || cap.style.display === "none") continue;
+
+		const text = (cap.textContent || "").trim();
+		const img = cap.querySelector("img");
+		const src = img ? img.getAttribute("src") || "" : "";
+
+		const hide =
+			text.includes("ERPNext") ||
+			text.includes("Framework") ||
+			src.includes("/erpnext/") ||
+			src.includes("/frappe/");
+
+		if (hide) {
+			cap.style.display = "none";
 		}
 	}
 }
 
-if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", hideIconsInDom);
-} else {
-	hideIconsInDom();
-}
-
-if (window.frappe) {
-	frappe.ready(hideIconsInDom);
-}
-
-// All Apps 页面是 SPA 路由，用 MutationObserver 兜底
-const observer = new MutationObserver(() => {
+function applyAll() {
 	hideHiddenApps();
 	hideIconsInDom();
-});
-observer.observe(document.documentElement, {
-	childList: true,
-	subtree: true,
-});
+}
+
+// 1. 立即尝试（boot 可能已就绪）
+applyAll();
+
+// 2. 轮询等 boot 就绪（最多 10 秒）
+let tries = 0;
+const timer = setInterval(() => {
+	tries++;
+	if (hideHiddenApps() || tries > 100) {
+		clearInterval(timer);
+	}
+	hideIconsInDom();
+}, 100);
+
+// 3. frappe.ready 兜底
+if (window.frappe) {
+	frappe.ready(applyAll);
+	frappe.after_ajax && frappe.after_ajax(applyAll);
+}
+
+// 4. DOM 变化兜底（All Apps 是 SPA 路由，图标后渲染）
+const observer = new MutationObserver(applyAll);
+observer.observe(document.documentElement, { childList: true, subtree: true });

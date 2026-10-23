@@ -163,7 +163,21 @@ def main():
         if "app_logo_url" not in hsrc and "logo" not in hsrc:
             errors.append("[AllApps] add_to_apps_screen 缺 logo 字段")
 
-        # route 不能是 /app/xxx（desk 旧前缀，会重定向）
+        # app_include_js 指向的文件必须真实存在
+        # （踩过：文件没 build → 浏览器 404 → 隐藏逻辑不执行）
+        for m2 in re.finditer(r'app_include_js\s*=\s*\[(.*?)\]', hsrc, re.S):
+            for m3 in re.finditer(r'"(/assets/[^"]+)"', m2.group(1)):
+                rel = m3.group(1).replace(f"/assets/{APP}/", "")
+                fp = f"{APP}/public/{rel}"
+                if not os.path.exists(fp):
+                    errors.append(
+                        f"[AllApps] app_include_js 指向的文件不存在: {fp}"
+                        " → 浏览器 404，JS 不执行"
+                    )
+                else:
+                    print(f"  ✓ app_include_js: {m3.group(1)}")
+
+        # route 不能用 /app/ 前缀（desk 旧前缀，会重定向）
         if '"/app/' in hsrc:
             errors.append(
                 "[AllApps] route 用了 /app/ 前缀"
@@ -171,8 +185,7 @@ def main():
             )
 
         # logo 文件必须真实存在
-        import re as _re
-        m = _re.search(r'"logo":\s*"(/assets/[^"]+)"', hsrc)
+        m = re.search(r'"logo":\s*"(/assets/[^"]+)"', hsrc)
         if m:
             logo_rel = m.group(1).replace(f"/assets/{APP}/", "")
             logo_path = f"{APP}/public/{logo_rel}"

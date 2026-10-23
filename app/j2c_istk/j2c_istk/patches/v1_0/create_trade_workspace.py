@@ -31,110 +31,92 @@ WORKSPACE = "J2C_ISTK"
 # 旧名（重命名前建的），存在就删掉
 LEGACY_WORKSPACES = ["贸易"]
 
+# 卡片分组：name 是 Card Break 的 label，entries 是它下面的链接
+CARD_GROUPS = [
+    ("采购与拆解", ["散件采购单", "拆解单"]),
+    ("物流与报关", ["物流批次", "报关单", "退税证据包", "商品轨迹记录"]),
+    ("库存与行情", ["行情价历史", "用途变更"]),
+    ("工具", ["标签打印", "贸易设置"]),
+]
+
+# 展示名 → DocType 名
+DOCTYPE_MAP = {
+    "散件采购单": "Loose Part Purchase",
+    "拆解单": "Disassembly Note",
+    "物流批次": "Logistics Batch",
+    "报关单": "Customs Declaration",
+    "退税证据包": "Evidence Package",
+    "商品轨迹记录": "Item Transit Record",
+    "行情价历史": "Market Price History",
+    "用途变更": "Purpose History",
+    "标签打印": "Label Print",
+    "贸易设置": "Trade Settings",
+}
+
 # Frappe v16 的 Workspace 没有 shortcuts 字段，
 # 用 links 子表（Workspace Link）承载侧边栏入口。
-# 每项：label=显示名，link_to=目标 DocType，type=DocType
+#
 # Workspace Link 子表的字段含义（很容易搞错）：
 #   type      = "Link" | "Card Break"    ← 卡片内的一条链接，还是换一张卡
 #   link_type = "DocType" | "Page" | "Report"
 #   link_to   = 目标 DocType 名
-# 传type="DocType" 会报「It should be one of "Link", "Card Break"」
-SHORTCUTS = [
-    {"label": "采购与拆解", "type": "Card Break"},
-    {"label": "散件采购单", "link_to": "Loose Part Purchase",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "拆解单", "link_to": "Disassembly Note",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "物流与报关", "type": "Card Break"},
-    {"label": "物流批次", "link_to": "Logistics Batch",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "报关单", "link_to": "Customs Declaration",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "退税证据包", "link_to": "Evidence Package",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "商品轨迹", "link_to": "Item Transit Record",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "库存与行情", "type": "Card Break"},
-    {"label": "行情价历史", "link_to": "Market Price History",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "用途变更", "link_to": "Purpose History",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "工具", "type": "Card Break"},
-    {"label": "标签打印", "link_to": "Label Print",
-     "type": "Link", "link_type": "DocType"},
-    {"label": "贸易设置", "link_to": "Trade Settings",
-     "type": "Link", "link_type": "DocType"},
-]
+# 传 type="DocType" 会报「It should be one of "Link", "Card Break"」
+#
+# 注意：content 里的 card block 通过 card_name 匹配 links 里
+# type="Card Break" 的 label，所以两边必须一致。
+
+
+def _build_links():
+    """从 CARD_GROUPS 生成 links 子表数据"""
+    links = []
+    for group_name, entries in CARD_GROUPS:
+        links.append({"label": group_name, "type": "Card Break"})
+        for label in entries:
+            links.append({
+                "label": label,
+                "link_to": DOCTYPE_MAP[label],
+                "link_type": "DocType",
+                "type": "Link",
+            })
+    return links
+
 
 def _build_content():
-    """工作台内容（Frappe block JSON → json.dumps 后赋值）
+    """工作台内容（Frappe v16 的 block 格式）
 
-    v16 的 Workspace.content 有两个强制要求：
-      1. workspace.py:614 sanitize_content 要 str/bytes
-         → 传 list 报 TypeError: the JSON object must be str, bytes...
-      2. workspace.py:106 validate 要 json.loads 后是 list
-         → 传 HTML 字符串报 Content data shoud be a list
-    所以必须 json.dumps(blocks) 传字符串，两边都满足。
+    v16 的正确用法（踩了 3 轮才对）：
+      content block: {"id": "<hash>", "type": "<block>", "data": {...}}
 
-    block 结构：
-      header : {"type": "header", "text": "...", "size": 1|2}
-      card   : {"type": "card", "header": "卡片名", "rows": [...]}
-      doc    : {"type": "doc", "label": "...", "doctype": "...",
-                "link_to": "..."}
-      spacer : {"type": "spacer", "size": 1|2}
+      卡片内容用 "card" block，data.card_name 指向 links 子表里
+      type="Card Break" 的 label：
+        {"id":"c1","type":"card","data":{"card_name":"采购与拆解","col":4}}
+
+      前端解析（block.js: make()）：
+        this.config.page_data[block + "s"].items.find(
+            obj => unescape_html(obj.label) == unescape_html(__(block_name)))
+      → card 走 page_data["cards"].items（Card Break 及其 links）
+      → shortcut 走 page_data["shortcuts"].items（顶层 shortcuts，不分组）
+
+      所以：
+        - 想要"分组卡片" → content 用 card block + links 里 Card Break
+        - 想要"平铺快捷方式" → content 用 shortcut block
+      旧格式 {"type":"card","header":"...","rows":[...]} 会报
+      "AttributeError: 'NoneType' object has no attribute 'lower'"
+
+      content 必须是 JSON 字符串（json.dumps 后传）：
+        workspace.py:614 sanitize_content 要 str/bytes
+        workspace.py:106 validate 要 json.loads 后是 list
     """
-    def header(text):
-        return {"type": "header", "text": text, "size": 1}
-
-    def card(title, entries):
+    def card(name, idx, col=4):
         return {
+            "id": f"j2ccard{idx:03d}",
             "type": "card",
-            "header": title,
-            "rows": [
-                {
-                    "type": "doc",
-                    "label": label,
-                    "doctype": doctype,
-                    "link_to": doctype,
-                }
-                for label, doctype in entries
-            ],
+            "data": {"card_name": name, "col": col},
         }
 
     return [
-        card(
-            "采购与拆解",
-            [
-                ("散件采购单", "Loose Part Purchase"),
-                ("拆解单", "Disassembly Note"),
-            ],
-        ),
-        {"type": "spacer", "size": 1},
-        card(
-            "物流与报关",
-            [
-                ("物流批次", "Logistics Batch"),
-                ("报关单", "Customs Declaration"),
-                ("退税证据包", "Evidence Package"),
-                ("商品轨迹", "Item Transit Record"),
-            ],
-        ),
-        {"type": "spacer", "size": 1},
-        card(
-            "库存与行情",
-            [
-                ("行情价历史", "Market Price History"),
-                ("用途变更", "Purpose History"),
-            ],
-        ),
-        {"type": "spacer", "size": 1},
-        card(
-            "工具",
-            [
-                ("标签打印", "Label Print"),
-                ("贸易设置", "Trade Settings"),
-            ],
-        ),
+        card(name, i)
+        for i, (name, _entries) in enumerate(CARD_GROUPS, 1)
     ]
 
 
@@ -161,12 +143,25 @@ def execute():
         # 对 list/str 会报 "object does not support item assignment"。
         # 直接 ws.links = [] 后 append 最稳。
         ws.links = []
-        for s in SHORTCUTS:
-            row = {"label": s["label"], "type": s["type"]}
-            if s.get("link_to"):
-                row["link_to"] = s["link_to"]
-                row["link_type"] = "DocType"
-            ws.append("links", row)
+        for row_data in _build_links():
+            ws.append("links", dict(row_data))
+
+        # 兜底：Workspace Link.link_type 为 None 时，desktop.py:257 会报
+        # "AttributeError: 'NoneType' object has no attribute 'lower'"
+        # （is_item_allowed 里 item_type.lower()）
+        # 踩过的坑：Workspace JSON 的 links 里写了 link_type，
+        # 但 migrate 导入后数据库里是 NULL —— 所以这里显式补。
+        fixed = frappe.db.sql(
+            """
+            UPDATE `tabWorkspace Link`
+            SET link_type = 'DocType'
+            WHERE parent = %s AND type = 'Link'
+              AND (link_type IS NULL OR link_type = '')
+            """,
+            (WORKSPACE,),
+        )
+        if fixed:
+            print(f"✓ 修复 {fixed} 行 link_type → DocType")
 
         ws.flags.ignore_permissions = True
         ws.save(ignore_permissions=True)
@@ -185,7 +180,7 @@ def execute():
             "sequence": 10,
             "public": 1,
             "content": json.dumps(_build_content(), ensure_ascii=False),
-            "links": SHORTCUTS,
+            "links": _build_links(),
         }
     )
     ws.flags.ignore_permissions = True
