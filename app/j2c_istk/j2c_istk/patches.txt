@@ -14,3 +14,4 @@ j2c_istk.patches.v1_0.fix_warehouse_names
 j2c_istk.patches.v1_0.rollback_csrh_warehouse_names
 j2c_istk.patches.v1_0.rename_module_to_j2c_istk
 j2c_istk.patches.v1_0.rename_app_to_j2c_istk
+j2c_istk.patches.v1_0.isolate_item_groups

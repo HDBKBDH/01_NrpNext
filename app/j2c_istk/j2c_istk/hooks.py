@@ -15,8 +15,6 @@ required_apps = ["frappe/erpnext"]
 # ---------------- Includes ----------------
 # include js/css assets in doctype views
 # app_include_css = "/assets/j2c_istk/css/j2c_istk.css"
-# 全局 JS：隐藏 ERPNext / Framework 的 All Apps 入口（仅展示层）
-app_include_js = ["/assets/j2c_istk/js/app_visibility.js"]
 
 # include js, css files in header of doctype views
 # v16：必须显式声明 doctype_js / doctype_css，
