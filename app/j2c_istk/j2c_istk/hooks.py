@@ -23,6 +23,7 @@ required_apps = ["frappe/erpnext"]
 doctype_js = {
     "Label Print": "public/js/label_print.bundle.js",
     "Customs Declaration": "public/js/customs_declaration.bundle.js",
+    "Stock In": "public/js/stock_in.bundle.js",
 }
 doctype_css = {}
 # home_page = "login"

@@ -6,6 +6,16 @@
  "label": "J2C_ISTK",
  "links": [
   {
+   "label": "入库",
+   "type": "Card Break"
+  },
+  {
+   "label": "入库单",
+   "link_to": "Stock In",
+   "link_type": "DocType",
+   "type": "Link"
+  },
+  {
    "label": "采购与拆解",
    "type": "Card Break"
   },

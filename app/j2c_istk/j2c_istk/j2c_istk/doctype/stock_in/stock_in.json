@@ -1,0 +1,354 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-23 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "field_order": [
+  "sec_main",
+  "naming_series",
+  "category",
+  "stock_date",
+  "warehouse",
+  "company",
+  "parent_item",
+  "sec_item",
+  "serial_numbers",
+  "cb_image",
+  "product_images",
+  "cb_basic",
+  "manufacturer",
+  "model",
+  "specification",
+  "col_break_qty",
+  "qty",
+  "uom",
+  "sec_amount",
+  "purchase_price_jpy",
+  "shipping_jpy",
+  "discount",
+  "exchange_rate",
+  "total_cny",
+  "reference_price_cny",
+  "market_price_cny",
+  "sec_status",
+  "payment_method",
+  "tax_refund_status",
+  "logistics_status",
+  "sec_logistics",
+  "logistics_note",
+  "cb_customs",
+  "customs_flag",
+  "customs_declaration",
+  "receipt_no",
+  "sec_total",
+  "stock_entry_ref",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_main",
+   "fieldtype": "Section Break",
+   "label": "基本信息"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "命名规则",
+   "options": "SIN-",
+   "default": "SIN-",
+   "reqd": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "类别",
+   "options": "散件\n整机\n拆分件",
+   "default": "散件",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "决定下方表单样式：散件 / 整机 / 拆分件"
+  },
+  {
+   "fieldname": "stock_date",
+   "fieldtype": "Date",
+   "label": "入库日期",
+   "reqd": 1,
+   "default": "Today"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "仓库",
+   "options": "Warehouse",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "选择后自动带出所属公司"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "公司",
+   "options": "Company",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "由仓库自动带出，不可修改"
+  },
+  {
+   "fieldname": "parent_item",
+   "fieldtype": "Link",
+   "label": "父商品编号",
+   "options": "Stock In",
+   "depends_on": "eval:doc.category == '拆分件'",
+   "description": "仅「拆分件」显示：关联所属整机的入库单"
+  },
+  {
+   "fieldname": "sec_item",
+   "fieldtype": "Section Break",
+   "label": "商品编号"
+  },
+  {
+   "fieldname": "serial_numbers",
+   "fieldtype": "Table",
+   "label": "商品编号",
+   "options": "Stock In Item",
+   "reqd": 1,
+   "description": "单个 = 1 行；对 = 2 行；可增删"
+  },
+  {
+   "fieldname": "cb_image",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "product_images",
+   "fieldtype": "Attach",
+   "label": "产品图片"
+  },
+  {
+   "fieldname": "cb_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "label": "厂商"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "型号"
+  },
+  {
+   "fieldname": "specification",
+   "fieldtype": "Data",
+   "label": "规格",
+   "description": "如 32GB / DDR4-3200 / 1TB"
+  },
+  {
+   "fieldname": "col_break_qty",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "label": "数量",
+   "default": "1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Select",
+   "label": "单位",
+   "options": "单个\n对\n台",
+   "default": "单个",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_amount",
+   "fieldtype": "Section Break",
+   "label": "金额"
+  },
+  {
+   "fieldname": "purchase_price_jpy",
+   "fieldtype": "Currency",
+   "label": "采购价格",
+   "currency": "JPY",
+   "reqd": 1
+  },
+  {
+   "fieldname": "shipping_jpy",
+   "fieldtype": "Currency",
+   "label": "运费",
+   "currency": "JPY",
+   "default": "0"
+  },
+  {
+   "fieldname": "discount",
+   "fieldtype": "Currency",
+   "label": "折扣",
+   "currency": "JPY",
+   "default": "0"
+  },
+  {
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "当日汇率",
+   "reqd": 1,
+   "precision": "0.000000",
+   "description": "1 JPY = ? CNY"
+  },
+  {
+   "fieldname": "total_cny",
+   "fieldtype": "Currency",
+   "label": "CNY 成本",
+   "currency": "CNY",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "(采购价 + 运费 - 折扣JPY) × 当日汇率"
+  },
+  {
+   "fieldname": "reference_price_cny",
+   "fieldtype": "Currency",
+   "label": "购买参考价",
+   "currency": "CNY"
+  },
+  {
+   "fieldname": "market_price_cny",
+   "fieldtype": "Currency",
+   "label": "行情价",
+   "currency": "CNY"
+  },
+  {
+   "fieldname": "sec_status",
+   "fieldtype": "Section Break",
+   "label": "状态"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Data",
+   "label": "支付方式"
+  },
+  {
+   "fieldname": "tax_refund_status",
+   "fieldtype": "Select",
+   "label": "退税状态",
+   "options": "\nCompleted\nPendingProof\nUndetermined\nPersonalSellerNoReceipt",
+   "default": "PendingProof",
+   "reqd": 1
+  },
+  {
+   "fieldname": "logistics_status",
+   "fieldtype": "Select",
+   "label": "物流状态",
+   "options": "\nInJapan\nInTransit\nArrivedHK\nArrivedSZ\nArrivedBJ\nSold\nReturned",
+   "default": "InJapan",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sec_logistics",
+   "fieldtype": "Section Break",
+   "label": "物流与单据"
+  },
+  {
+   "fieldname": "logistics_note",
+   "fieldtype": "Small Text",
+   "label": "物流状态说明"
+  },
+  {
+   "fieldname": "cb_customs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customs_flag",
+   "fieldtype": "Check",
+   "label": "报关",
+   "default": "0"
+  },
+  {
+   "fieldname": "customs_declaration",
+   "fieldtype": "Link",
+   "label": "报关单",
+   "options": "Customs Declaration",
+   "no_copy": 1,
+   "depends_on": "eval:doc.customs_flag"
+  },
+  {
+   "fieldname": "receipt_no",
+   "fieldtype": "Data",
+   "label": "收货单"
+  },
+  {
+   "fieldname": "sec_total",
+   "fieldtype": "Section Break",
+   "label": "汇总"
+  },
+  {
+   "fieldname": "stock_entry_ref",
+   "fieldtype": "Link",
+   "label": "库存单据",
+   "options": "Stock Entry",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "备注"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "修订自",
+   "options": "Stock In",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "J2C_ISTK",
+ "name": "Stock In",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "role": "Stock User",
+   "share": 1
+  }
+ ],
+ "sort_field": "stock_date",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "model",
+ "track_changes": 1,
+ "description": "入库单 —— 散件 / 整机 / 拆分件统一入口"
+}
